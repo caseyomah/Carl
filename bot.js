@@ -13,7 +13,7 @@
 // Set constants
 const Discord = require('discord.js');
 const Carl = new Discord.Client();
-const auth = require('./auth.json');
+const auth = require('/home/plex/bots/authCarl.json');
 const fs = require('fs');
 const Ch = {};
 const Em = {};
