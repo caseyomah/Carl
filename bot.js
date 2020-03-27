@@ -94,7 +94,7 @@ Recs.add=function(u,c,t,r) {
         return true;
     }
 }
-function Report(srv,chan,user) {
+function Report(srv,chan,tag) {
     var ch=chan||onconn;
     if (srv==""||srv=="all") {
         if (Online["plex"] && Online["calibre"]) {
@@ -130,11 +130,11 @@ function Report(srv,chan,user) {
             else stat="down.";
         }
         if(code[srv]&&stat) {
-            if (user) {
-                ch.send(user+", code[srv]+" is "+stat);
+            if (tag) {
+                ch.send(tag+", "+code[srv]+" is "+stat);
             }
             else {
-                ch.send(code[srv]+" is "+stat);
+                ch.send(code[srv].substr(0,1).toUpperCase()+code[srv].substr(1)+" is "+stat);
             }
         }
     }
@@ -166,7 +166,7 @@ Carl.on('ready', () => {
     newconn = Ch.get("welcome");
 
     // uncomment below to set Carl to send to testing channel. (Ushers/Producer only)
-    // onconn=offconn;
+    onconn=offconn;
 
     // Links to roles and channels.
     CastingRef=Usr.ref("CaStInG");
@@ -179,8 +179,8 @@ Carl.on('ready', () => {
     Server=new Array("plex","calibre","ftp");
     ServerProc=new Array("plexmediaserver","calibre-server","proftpd");
     code=new Array();
-    code["plex"]="The theater";
-    code["calibre"]="The library";
+    code["plex"]="the theater";
+    code["calibre"]="the library";
     code["ftp"]="FTP access";
     OnMsg=new Array(true,true,false);
     OffMsg=new Array(true,true,false);
@@ -217,29 +217,29 @@ Carl.on('ready', () => {
 
 // Reply to messages
 Carl.on('message', msg => {
-    
+    var input=msg.content.toLowerCase();
     //Plain text social responses
-	if (msg.content.match(/^[Hh](e(llo)?|i|y)a?.* [Cc]arl.*/)) {
+	if (input.match(/^h(e(llo)?|i|y)a?.* carl.*/)) {
         var say=new Array("Hello, "+Mbr(msg.member,0)+", is there something I can help you with?");
         msg.channel.send(say[Math.floor(Math.random()*say.length)]);
     }
-    if (msg.content.match(/^([Gg]ood ?)?([Bb]ye|[Nn](ight|ite)).* [Cc]arl.*/)) {
+    if (input.match(/^(good ?)?(bye|n(ight|ite)).* carl.*/)) {
         var say=new Array("Hope to see you again soon.","Hope to see you again soon, "+Mbr(msg.member,0)+".");
         msg.channel.send(say[Math.floor(Math.random()*say.length)]);
     }
-    if(msg.content.match(/[Mm]orning.* [Cc]arl.*/)) {
+    if(input.match(/morning.* carl.*/)) {
         var say=new Array("Great to see you again.","Great to see you again, "+Mbr(msg.member,0)+".");
         msg.channel.send(say[Math.floor(Math.random()*say.length)]);
     }
-    if(msg.content.match(/[Tt]hank(s.*| ?you.*) [Cc]arl.*/)) {
+    if(input.match(/thank(s.*| ?you.*) carl.*/)) {
         var say=new Array("It is a pleasure to be of service.","You are most welcome.");
         msg.channel.send(say[Math.floor(Math.random()*say.length)]);
     }
 
     //// Programatic triggers
     // emote
-	if (msg.content.match(/^![Ee]mote/)) {
-        var em=msg.content.substr(7);
+	if (input.match(/^!emote/)) {
+        var em=input.substr(7);
         if (em.length>0) {
             em=em.split(" ");
             for (var a=0;a<em.length;a++) {
@@ -249,16 +249,16 @@ Carl.on('message', msg => {
     }
 
     // ping reply
-	if (msg.content.match(/^![Pp]ing/)) {
-        var srv=msg.content.substr(6);
+	if (input.match(/^!ping/)) {
+        var srv=input.substr(6);
         if (srv.length>0) {
             srv=srv.split(" ");
-            if (srv.length=3 && srv[1]=="for") {
-                Report(srv[0].toLowerCase(),msg.channel,srv[2]);
+            if (srv.length==3 && srv[1]=="for") {
+                Report(srv[0],msg.channel,srv[2]);
             }
             else {
                 for (var a=0;a<srv.length;a++) {
-                    Report(srv[a].toLowerCase(),msg.channel);
+                    Report(srv[a],msg.channel);
                 }
             }
         }
@@ -266,13 +266,13 @@ Carl.on('message', msg => {
     }
     
     // New Member follow-up
-    if (msg.content.match(/^\"?[Ii] understand.?\"?$/) && msg.channel == newconn) {
+    if (input.match(/^\"?i understand.?\"?$/) && msg.channel == newconn) {
 	    newconn.send("Done? Great! Sorry to put you through that mess, but it was pretty important. Now, I'll slip a note to our "+CastingRef+" department. They should be by soon to answer any questions and let you in.");
         setTimeout(function() {newconn.send("Oh, I almost forgot! Once you're in, if you need help, be sure to ask in the "+HelpRef+" channel. You can also type !help to see what I can help you with.")},5000);
     }
     
 	//tips reply
-	if (msg.content.match(/^![Tt]ip.?/)) {
+	if (input.match(/^!tip.?/)) {
 		var say=new Array("🇹 🇮 🇵 Did you know? you can get access to the video library by sending a DM to Vaesse that includes your Plex email address, and a request for access.","🇹 🇮 🇵 Did you know? You can get access to our library of E-Books by requesting access to Calibre in the "+HelpRef+" channel!","🇹 🇮 🇵  Need FTP access? You can request it in the "+HelpRef+" channel!","🇹 🇮 🇵 Looking for audiobooks? Check in the Audiobooks library! If you don't see it, check under the Music library. Still can't find it? Ask for help in the "+HelpRef+" channel, and someone will assist you soon!","🇹 🇮 🇵 Having technical issues, or something is not working as expected? Ask for assistance in the "+HelpRef+" channel, and one of our volunteer Tech Support reps will get back to you soon!","🇹 🇮 🇵 Have a show, movie, album, or book you want to recommend to everyone?  Let us know what you love and why in the "+HelpRef+" channel, and we'll add a tip!");
          msg.channel.send(say[Math.floor(Math.random()*say.length)]);
     }
@@ -290,7 +290,7 @@ Carl.on('message', msg => {
 	
     
 	// help text
-	if (msg.content.match(/^![Hh]elp/)||msg.content.match(/^[Hh]elp.*[Cc]arl.*/)) {
+	if (input.match(/^!help/)||input.match(/^help.*carl.*/)) {
 		msg.channel.send(Mbr(msg.member,1)+', here\'s a quick help list!\r\n\r\n!ping ["plex"/"calibre"/"ftp"/"all"/""] - Asks me the status of various services.\r\n!tips - Asks me for a random tip.\r\n!help - Tells me to display this message.\r\n\r\nIf you need assistance or have a suggestion for my service, let a member of our Casting staff know in '+HelpRef+'.');
 	}
 	
