@@ -166,7 +166,7 @@ Carl.on('ready', () => {
     newconn = Ch.get("welcome");
 
     // uncomment below to set Carl to send to testing channel. (Ushers/Producer only)
-    onconn=offconn;
+    //onconn=offconn;
 
     // Links to roles and channels.
     CastingRef=Usr.ref("CaStInG");
