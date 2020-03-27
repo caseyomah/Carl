@@ -94,7 +94,7 @@ Recs.add=function(u,c,t,r) {
         return true;
     }
 }
-function Report(srv,chan) {
+function Report(srv,chan,user) {
     var ch=chan||onconn;
     if (srv==""||srv=="all") {
         if (Online["plex"] && Online["calibre"]) {
@@ -129,7 +129,14 @@ function Report(srv,chan) {
             if (Online[srv]) stat="up.";
             else stat="down.";
         }
-        if(code[srv]&&stat) ch.send(code[srv]+" is "+stat);
+        if(code[srv]&&stat) {
+            if (user) {
+                ch.send(user+", code[srv]+" is "+stat);
+            }
+            else {
+                ch.send(code[srv]+" is "+stat);
+            }
+        }
     }
 }
 Usr.ref=function(id) {
@@ -246,8 +253,13 @@ Carl.on('message', msg => {
         var srv=msg.content.substr(6);
         if (srv.length>0) {
             srv=srv.split(" ");
-            for (var a=0;a<srv.length;a++) {
-                Report(srv[a].toLowerCase(),msg.channel);
+            if (srv.length=3 && srv[1]=="for") {
+                Report(srv[0].toLowerCase(),msg.channel,srv[2]);
+            }
+            else {
+                for (var a=0;a<srv.length;a++) {
+                    Report(srv[a].toLowerCase(),msg.channel);
+                }
             }
         }
         else Report("",msg.channel);
