@@ -1,6 +1,6 @@
 /*
     Future Plans:
-        Ch and Usr seach by name
+        Ch and Role seach by name
         Fix funcion Em (Figure out emoji lookup)
         Split Reccomendations (Recc) out from Tips
 		Make separate docs for: TV, movies, books, misc
@@ -12,24 +12,16 @@
 
 // Set constants
 const Discord = require('discord.js');
-const Carl = new Discord.Client();
+const Carl = bot = new Discord.Client();
 const auth = require('/home/plex/bots/authCarl.json');
 const fs = require('fs');
-const Ch = {};
-const Em = {};
-const Usr = {};
+const Ch = require('./ch.js');
+const Em = require('./em.js');
+const Role = require('./role.js');
 Recs = {"list":[]};
+console.log(Discord.Client);
 
 // Define Functions
-Ch.get=function(id) {
-    return Carl.channels.get(this[id.toLowerCase()]||id.toLowerCase());
-};
-Ch.ref=function(id) {
-    return "<#"+(this[id.toLowerCase()]||id.toLowerCase())+">";
-};
-Ch.set=function(id,val) {
-    this[id.toLowerCase()]=val;
-};
 function Check(srv,chan,pass) {
     var shellCommand = require("linux-shell-command").shellCommand;
     for (var s=0;s<Server.length;s++) {
@@ -69,15 +61,6 @@ function Check(srv,chan,pass) {
         }
     }
     if(chan) Report(srv,chan);
-}
-Em.add=function(name,id) {
-    this[name]=name+":"+id;
-}
-Em.find=function(id) {
-    return onconn.guild.emojis.find(emoji => emoji.name === id);
-}
-Em.use=function(name) {
-    return "<"+this[name]+">";
 }
 function Mbr(mem,leadcap) {
     if (leadcap) {
@@ -139,18 +122,12 @@ function Report(srv,chan,tag) {
         }
     }
 }
-Usr.ref=function(id) {
-    return "<@&"+(this[id.toLowerCase()]||id.toLowerCase())+">";
-};
-Usr.set=function(id,val) {
-    this[id.toLowerCase()]=val;
-};
 
 // acknowledge ready state
 Carl.on('ready', () => {
     // console.log('Logged in as ${Carl.user.tag)!');
     
-    //define Ch and Usr objects.
+    //define Ch and Role objects.
     Ch.set("bot","675864898617606184");
     Ch.set("help","583979972578770945");
     Ch.set("test","681380531493142533");
@@ -158,7 +135,7 @@ Carl.on('ready', () => {
     Ch.set("plex","581346715852865547");
     Ch.set("calibre","590195078765608961");
     Ch.set("rules","581352180355694603");
-    Usr.set("casting","581334517151825920");
+    Role.set("casting","581334517151825920");
     
     // define frequently used channels.
     onconn = Ch.get("bot");
@@ -166,10 +143,10 @@ Carl.on('ready', () => {
     newconn = Ch.get("welcome");
 
     // uncomment below to set Carl to send to testing channel. (Ushers/Producer only)
-    //onconn=offconn;
+    onconn=offconn;
 
     // Links to roles and channels.
-    CastingRef=Usr.ref("CaStInG");
+    CastingRef=Role.ref("CaStInG");
     RulesRef=Ch.ref("rules");
     CalibreRef=Ch.ref("calibre");
     PlexRef=Ch.ref("plex");
