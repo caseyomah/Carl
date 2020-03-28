@@ -143,7 +143,7 @@ Carl.on('ready', () => {
     newconn = Ch.get("welcome");
 
     // uncomment below to set Carl to send to testing channel. (Ushers/Producer only)
-    onconn=offconn;
+    //onconn=offconn;
 
     // Links to roles and channels.
     CastingRef=Role.ref("CaStInG");
@@ -204,15 +204,20 @@ Carl.on('message', msg => {
         var say=new Array("Hope to see you again soon.","Hope to see you again soon, "+Mbr(msg.member,0)+".");
         msg.channel.send(say[Math.floor(Math.random()*say.length)]);
     }
-    if(input.match(/morning.* carl.*/)) {
+    if (input.match(/morning.* carl.*/)) {
         var say=new Array("Great to see you again.","Great to see you again, "+Mbr(msg.member,0)+".");
         msg.channel.send(say[Math.floor(Math.random()*say.length)]);
     }
-    if(input.match(/thank(s.*| ?you.*) carl.*/)) {
+    if (input.match(/thank(s.*| ?you.*) carl.*/)) {
         var say=new Array("It is a pleasure to be of service.","You are most welcome.");
         msg.channel.send(say[Math.floor(Math.random()*say.length)]);
     }
-
+    
+    // Bot banter
+    if (input=="sorry, i was doing some uhh... nerdy stuff." && Math.floor(Math.random() * 10)==0) {
+        var say=new Array("I'm sure I don't want to know.","You don't say...","My goodness.","Was that Star Trek or Star Wars?");
+        msg.channel.send(say[Math.floor(Math.random()*say.length)]);
+    }
     //// Programatic triggers
     // emote
 	if (input.match(/^!emote/)) {
