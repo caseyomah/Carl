@@ -18,8 +18,7 @@ const fs = require('fs');
 const Ch = require('./ch.js');
 const Em = require('./em.js');
 const Role = require('./role.js');
-Recs = {};
-Recs.list=[];
+Recs = require("./recs.js");
 
 // Define Functions
 function Check(srv,chan,pass) {
@@ -64,15 +63,6 @@ function Check(srv,chan,pass) {
 }
 function Mbr(mem,leadcap) {
     return leadcap?mem||"Friend":mem||"friend";
-}
-Recs.add=function(u,c,t,r) {
-    for (var a in Recs.list.length) {
-        if (""+Recs.list[a].user.localeCompare(u, undefined, { sensitivity: 'base' })+Recs.list[a].cat.localeCompare(c, undefined, { sensitivity: 'base' })+Recs.list[a].title.localeCompare(t, undefined, { sensitivity: 'base' })=="000") {
-            return Recs.list.push({user:u,cat:c,title:t,reason:r});
-            
-        }
-        return false;
-    }
 }
 function Report(srv,chan,tag) {
     var ch=chan||onconn;
@@ -165,22 +155,6 @@ Carl.on('ready', () => {
         Online[Server[srv]]="unknown";
     }
 
-    // Open recommends file to parse
-    var contents=fs.readFileSync('/home/Plex/Bot/Carl/recommends.txt', 'utf8')
-    if (contents.slice(-1)=="\n") {
-        contents=contents.slice(0,-1);
-    }
-    console.log('"'+contents+'"');
-    recs=contents.split("\n");
-    console.log(recs);
-    for (var a in recs) {
-        var b=Recs.add(recs[a][0],recs[a][1],recs[a][2],recs[a][3],recs[a][4]);
-        if (!b) console.log(recs[a]+" failed to load");
-        c=a;
-    }
-    console.log(c+" recs loaded.");
-    console.log(Recs.list);
-
     // Wakeup message.
     var say=new Array("Sorry, I must have dozed off for a bit.","Please excuse me, the best scene just finished. I'm here now.","My apologies, I was a bit distracted.");
 	onconn.send(say[Math.floor(Math.random()*say.length)]);
@@ -254,6 +228,19 @@ Carl.on('message', msg => {
             setTimeout(function() {newconn.send("Oh, I almost forgot! Once you're in, if you need help, be sure to ask in the "+HelpRef+" channel. You can also type !help to see what I can help you with.")},5000);
         }
         
+        // recs reply
+        if (args=input.match(/^!recs? ?(.*)?/)) {
+            if (args[1]) {
+                say= (Recs.get(args[1]));
+            }
+            else {
+                say= (Recs.getRandom());
+            }
+            msg.channel.send(new Discord.RichEmbed()
+			.setColor('#FFAA00')
+			.setDescription(say));
+            say=undefined;
+        }
         //tips reply
         if (input.match(/^!tip/)) {
             var say=new Array(
