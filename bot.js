@@ -18,8 +18,8 @@ const fs = require('fs');
 const Ch = require('./ch.js');
 const Em = require('./em.js');
 const Role = require('./role.js');
-Recs = {"list":[]};
-console.log(Discord.Client);
+Recs = {};
+Recs.list=[];
 
 // Define Functions
 function Check(srv,chan,pass) {
@@ -63,18 +63,15 @@ function Check(srv,chan,pass) {
     if(chan) Report(srv,chan);
 }
 function Mbr(mem,leadcap) {
-    if (leadcap) {
-        return mem||"Friend";
-    }
-    else return mem||"friend";
+    return leadcap?mem||"Friend":mem||"friend";
 }
 Recs.add=function(u,c,t,r) {
     for (var a in Recs.list.length) {
-        if (Recs.list[a].user.toLowerCase()==u.toLowerCase()&&Recs.recs.list[a].cat.toLowerCase()==c.toLowerCase()&&Recs.recs.list[a].title.toLowerCase()==t.toLowerCase()) {
-            return false;
+        if (""+Recs.list[a].user.localeCompare(u, undefined, { sensitivity: 'base' })+Recs.list[a].cat.localeCompare(c, undefined, { sensitivity: 'base' })+Recs.list[a].title.localeCompare(t, undefined, { sensitivity: 'base' })=="000") {
+            return Recs.list.push({user:u,cat:c,title:t,reason:r});
+            
         }
-        Recs.list.push({"user":u,"cat":c,"title":t,"reason":r});
-        return true;
+        return false;
     }
 }
 function Report(srv,chan,tag) {
@@ -170,10 +167,14 @@ Carl.on('ready', () => {
 
     // Open recommends file to parse
     var contents=fs.readFileSync('/home/Plex/Bot/Carl/recommends.txt', 'utf8')
-    var c,recs=contents.split("\n");
+    if (contents.slice(-1)=="\n") {
+        contents=contents.slice(0,-1);
+    }
+    console.log('"'+contents+'"');
+    recs=contents.split("\n");
+    console.log(recs);
     for (var a in recs) {
-        recs[a]=recs[a].substr(1,recs[a].length-2).split("\",\"");
-        var b=Recs.add(recs[a][0],recs[a][1],recs[a][2]);
+        var b=Recs.add(recs[a][0],recs[a][1],recs[a][2],recs[a][3],recs[a][4]);
         if (!b) console.log(recs[a]+" failed to load");
         c=a;
     }
@@ -221,7 +222,7 @@ Carl.on('message', msg => {
         //// Programatic triggers
         // emote
         if (input.match(/^!emote/)) {
-            var em=input.substr(7);
+            var em=input.slice(7);
             if (em.length>0) {
                 em=em.split(" ");
                 for (var a=0;a<em.length;a++) {
@@ -232,7 +233,7 @@ Carl.on('message', msg => {
 
         // ping reply
         if (input.match(/^!ping/)) {
-            var srv=input.substr(6);
+            var srv=input.slice(6);
             if (srv.length>0) {
                 srv=srv.split(" ");
                 if (srv.length==3 && srv[1]=="for") {
@@ -255,9 +256,16 @@ Carl.on('message', msg => {
         
         //tips reply
         if (input.match(/^!tip/)) {
-            var say=new Array("📺 ? ?️ Did you know? you can get access to the video library by sending a DM to Vaesse that includes your Plex email address, and a request for access.","📚 <:die:342484331941593088> 💥 Did you know? You can get access to our library of E-Books by requesting access to Calibre in the "+HelpRef+" channel!","Need FTP access? You can request it in the "+HelpRef+" channel!","📖 Looking for audiobooks? Check in the Audiobooks library! If you don't see it, check under the Music library. Still can't find it? Ask for help in the "+HelpRef+" channel, and someone will assist you soon!","Having technical issues, or something is not working as expected? Ask for assistance in the "+HelpRef+" channel, and one of our volunteer Tech Support reps will get back to you soon!","Have a show, movie, album, or book you want to recommend to everyone?  Let us know what you love and why in the "+HelpRef+" channel, and we'll add a tip!");
+            var say=new Array(
+                "📺 ? ?️ Did you know? you can get access to the video library by sending a DM to Vaesse that includes your Plex email address, and a request for access.",
+                "📚 <:die:342484331941593088> 💥 Did you know? You can get access to our library of E-Books by requesting access to Calibre in the "+HelpRef+" channel!",
+                "Need FTP access? You can request it in the "+HelpRef+" channel!",
+                "📖 Looking for audiobooks? Check in the Audiobooks library! If you don't see it, check under the Music library. Still can't find it? Ask for help in the "+HelpRef+" channel, and someone will assist you soon!",
+                "Having technical issues, or something is not working as expected? Ask for assistance in the "+HelpRef+" channel, and one of our volunteer Tech Support reps will get back to you soon!",
+                "Have a show, movie, album, or book you want to recommend to everyone?  Let us know what you love and why in the "+HelpRef+" channel, and we'll add a tip!"
+            );
             var embed = new Discord.RichEmbed()
-			.setColor('#00aa00')
+			.setColor('#00AA00')
 			.setDescription(say[Math.floor(Math.random()*say.length)]);
             msg.channel.send({ embed });
         }
@@ -276,7 +284,7 @@ Carl.on('message', msg => {
         
         // help text
         if (input.match(/^!help/)||input.match(/^help.*carl.*/)) {
-            msg.channel.send(Mbr(msg.member,1)+', here\'s a quick help list!\r\n\r\n!ping ["plex"/"calibre"/"ftp"/"all"/""] - Asks me the status of various services.\r\n!tips - Asks me for a random tip.\r\n!help - Tells me to display this message.\r\n\r\nIf you need assistance or have a suggestion for my service, let a member of our Casting staff know in '+HelpRef+'.');
+            msg.channel.send(Mbr(msg.member,1)+', here\'s a quick help list!\n\n!ping ["plex"/"calibre"/"ftp"/"all"/""] - Asks me the status of various services.\n!tips - Asks me for a random tip.\n!help - Tells me to display this message.\n\nIf you need assistance or have a suggestion for my service, let a member of our Casting staff know in '+HelpRef+'.');
         }
     }
 });
