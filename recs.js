@@ -1,8 +1,20 @@
 const cat={tv:"show",movie:"movie",music:"song",audiobook:"audiobook",book:"book",rpg:"role-playing game",comic:"comic book"};
 const lib={tv:"TV",movie:"Movie",music:"Music",audiobook:"Audiobook",book:"Book",rpg:"RPG",comic:"Comics"};
-name={"341458616424857602":"Vaesse"};
+name=[];
 const fs = require('fs');
-var file="/home/Plex/Bot/Carl/recommends.txt";
+const recfile="./recommends.txt";
+const namefile="./names.txt";
+parseCSV=function(file) {
+    var contents=fs.readFileSync(file, 'utf8')
+    while (contents.slice(-1)=="\n") {
+        contents=contents.slice(0,-1);
+    }
+    arr=contents.split("\n");
+    for (var a in arr) {
+        arr[a]=arr[a].slice(1,-1).split('","');
+    }
+    return arr;
+}
 module.exports={
     load:function(u,c,t,r) {
         for (var a in list.length) {
@@ -27,8 +39,8 @@ module.exports={
         else return "I only have "+list.length+" recommendations. I can't locate the one you asked for.";
     }
 };
-list=new Array();
-var contents=fs.readFileSync(file, 'utf8')
+list=[];
+var contents=fs.readFileSync(recfile, 'utf8')
 while (contents.slice(-1)=="\n") {
     contents=contents.slice(0,-1);
 }
