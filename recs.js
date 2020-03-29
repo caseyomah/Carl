@@ -21,8 +21,8 @@ module.exports={
     },
     get:function(which) {
         if (Number(which)<list.length) {
-        var r=list[Number(which)];
-        return "Have you seen the "+cat[r.cat]+" **"+r.title+"**? "+name[r.user]+" recommends it saying, '"+r.reason+'" Check it out in the '+lib[r.cat]+" library!";
+            var r=list[Number(which)];
+            return "Have you seen the "+cat[r.cat]+" **"+r.title+"**? "+name[r.user]+" recommends it saying, '"+r.reason+'" Check it out in the '+lib[r.cat]+" library!";
         }
         else return "I only have "+list.length+" recommendations. I can't locate the one you asked for.";
     }

@@ -1,10 +1,10 @@
 /*
     Future Plans:
-        Ch and Role seach by name
-        Fix funcion Em (Figure out emoji lookup)
-        Split Reccomendations (Recc) out from Tips
+        Ch and Role search by name
+        Fix function Em (Figure out emoji lookup)
+        Split Recommendations (Rec) out from Tips
 		Make separate docs for: TV, movies, books, misc
-		Call with `!recc TV` or `!recc`
+		Call with `!rec TV` or `!rec`
 		If no sub specified, randomly chose one of the available docs
 		Then once in doc randomly choose one line and return it.
 		Create an interface for adding new entries to these from Discord (Crypto should be able to help)

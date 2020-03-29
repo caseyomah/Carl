@@ -2,8 +2,11 @@
   "name": "Carl",
   "version": "1.1.1",
   "description": "Discord Plex Bot",
-  "main": "bot.js",
+  "main": "carl.js",
   "readmeFilename": "changelog.txt",
+  "scripts": {
+    "start": "node ."
+  },
   "dependencies": {
     "@discordjs/uws": "^10.149.0",
     "discord": "^0.8.2",
