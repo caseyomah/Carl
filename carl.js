@@ -33,15 +33,15 @@ function Check(srv,chan,pass) {
                 }
                 if (success === true && sc.stdout != "") {
                     if (sc.stdout.substr(0,6) == "active") {
-                        if (Online[Server[s]] == false&&OnMsg[s]) {
-                            var say=new Array(code[Server[s]]+" has just reopened.");
+                        if (Online[Server[s]] === false&&OnMsg[s]) {
+                            var say=new Array(code[Server[s]].slict(0,1).toUpperCase()+code[Server[s]].slice(1)+" has just reopened.");
                             onconn.send(say[Math.floor(Math.random()*say.length)]);
                         }
                         Online[Server[s]]=true;
                     }
                     else if (sc.stdout.substr(0,6) != "active") {
-                        if (Online[Server[s]] == true&&OffMsg[s]) {
-                            var say=new Array(code[Server[s]]+" has just closed.");
+                        if (Online[Server[s]] === true&&OffMsg[s]) {
+                            var say=new Array(code[Server[s]].slict(0,1).toUpperCase()+code[Server[s]].slice(1)+" has just closed.");
                             onconn.send(say[Math.floor(Math.random()*say.length)]);
                         }
                         Online[Server[s]]=false;
