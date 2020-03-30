@@ -2,8 +2,8 @@ const cat={tv:"show",movie:"movie",music:"song",audiobook:"audiobook",book:"book
 const lib={tv:"TV",movie:"Movie",music:"Music",audiobook:"Audiobook",book:"Book",rpg:"RPG",comic:"Comics"};
 name=[];
 const fs = require('fs');
-const recfile="./recommends.txt";
-const namefile="./names.txt";
+const recfile="data/recommends.txt";
+const namefile="data/names.txt";
 parseCSV=function(file) {
     var contents=fs.readFileSync(file, 'utf8')
     while (contents.slice(-1)=="\n") {
@@ -29,14 +29,27 @@ module.exports={
         return list;
     },
     getRandom:function() {
-        return module.exports.get(Math.floor(Math.random()*list.length));
+        return module.exports.get.execute(message,Math.floor(Math.random()*list.length));
     },
-    get:function(which) {
-        if (Number(which)<list.length) {
-            var r=list[Number(which)];
-            return "Have you seen the "+cat[r.cat]+" **"+r.title+"**? "+name[r.user]+" recommends it saying, '"+r.reason+'" Check it out in the '+lib[r.cat]+" library!";
+    get:{
+        name:"rec",
+        rich:{
+            color: 0xFFAA00,
+            title: "Recommendation"
+        },
+        description:"Request a recommendation",
+        execute(message,args) {
+            if (args.length==0) do args=[Math.floor(Math.random()*list.length)];
+            while (args[0]==this.lastShown);
+            embed=() => {return this.rich;};
+            if (Number(args[0])<list.length) {
+                var r=list[Number(args[0])];
+                embed.description="Have you seen the "+cat[r.cat]+" **"+r.title+"**? "+name[r.user]+" recommends it saying, '"+r.reason+'" Check it out in the '+lib[r.cat]+" library!";
+                this.lastShown=r;
+            }
+            else embed.description="I only have "+list.length+" recommendations. I can't locate the one you asked for.";
+            return message.reply({embed});
         }
-        else return "I only have "+list.length+" recommendations. I can't locate the one you asked for.";
     }
 };
 list=[];

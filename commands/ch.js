@@ -1,5 +1,5 @@
 module.exports={
-    get:function(id) {
+    get:function(bot,id) {
         return bot.channels.get(this[id.toLowerCase()]||id.toLowerCase());
     },
     ref:function(id) {

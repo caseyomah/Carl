@@ -11,14 +11,33 @@
 */
 
 // Set constants
-const Discord = require('discord.js');
-const Carl = bot = new Discord.Client();
-const auth = require('/home/plex/bots/authCarl.json');
+findCommands=function(client,command,window) {
+    //console.log(Object.keys(command));
+    if (Object.keys(command).includes("name") && Object.keys(command).includes("execute")) {
+        client.commands.set(command.name, command);
+    }
+    else Object.keys(command).forEach((c) => {
+        findCommands(client,command[c],window);
+    });
+}
 const fs = require('fs');
-const Ch = require('./ch.js');
-const Em = require('./em.js');
-const Role = require('./role.js');
-Recs = require("./recs.js");
+const Discord = require('discord.js');
+const { prefix, token } = require('/home/plex/bots/authCarl.json');
+const client = new Discord.Client();
+client.commands = new Discord.Collection();
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+for (const file of commandFiles) {
+    // Check if the object adheres to best practices
+    // and set a new item in the Collection
+    // with the key as the command name and the value as the exported module
+    // searching recursively.
+	findCommands(client,require(`./commands/${file}`),this);
+}
+
+const Ch = require('./commands/ch.js');
+const Em = require('./commands/em.js');
+const Role = require('./commands/role.js');
+Recs = require("./commands/recs.js");
 
 // Define Functions
 function Check(srv,chan,pass) {
@@ -41,7 +60,7 @@ function Check(srv,chan,pass) {
                     }
                     else if (sc.stdout.substr(0,6) != "active") {
                         if (Online[Server[s]] === true&&OffMsg[s]) {
-                            var say=new Array(code[Server[s]].slict(0,1).toUpperCase()+code[Server[s]].slice(1)+" has just closed.");
+                            var say=new Array(code[Server[s]].slice(0,1).toUpperCase()+code[Server[s]].slice(1)+" has just closed.");
                             onconn.send(say[Math.floor(Math.random()*say.length)]);
                         }
                         Online[Server[s]]=false;
@@ -84,7 +103,7 @@ function Report(srv,chan,tag) {
             ch.send(say[Math.floor(Math.random()*say.length)]);
         }
         else {
-            Casting = Carl.channel.server.roles.mention("name","Casting");
+            Casting = client.channel.server.roles.mention("name","Casting");
             var say=new Array(CastingRef+", we appear to be running by candlelight. Nothing is working. Why am I not at home?");
             ch.send(say[Math.floor(Math.random()*say.length)]);
         }
@@ -111,8 +130,8 @@ function Report(srv,chan,tag) {
 }
 
 // acknowledge ready state
-Carl.on('ready', () => {
-    // console.log('Logged in as ${Carl.user.tag)!');
+client.on('ready', () => {
+    // console.log('Logged in as ${client.user.tag)!');
     
     //define Ch and Role objects.
     Ch.set("bot","675864898617606184");
@@ -125,11 +144,11 @@ Carl.on('ready', () => {
     Role.set("casting","581334517151825920");
     
     // define frequently used channels.
-    onconn = Ch.get("bot");
-    offconn = Ch.get("test");
-    newconn = Ch.get("welcome");
+    onconn = Ch.get(client,"bot");
+    offconn = Ch.get(client,"test");
+    newconn = Ch.get(client,"welcome");
 
-    // uncomment below to set Carl to send to testing channel. (Ushers/Producer only)
+    // uncomment below to set client to send to testing channel. (Ushers/Producer only)
     //onconn=offconn;
 
     // Links to roles and channels.
@@ -167,8 +186,22 @@ Carl.on('ready', () => {
 });
 
 // Reply to messages
-Carl.on('message', msg => {
-    if (Carl.id != msg.author.id) {
+client.on('message', msg => {
+    if (client.id != msg.author.id) {
+        const args = msg.content.slice(prefix.length).split(/ +/);
+        const commandName = args.shift().toLowerCase();
+
+        if (!client.commands.has(commandName)) return;
+
+        const command=client.commands.get(commandName);
+        
+        try {
+            command.execute(msg, args);
+
+        } catch (error) {
+            console.error(error);
+            console.log('there was an error trying to execute '+command+'!');
+        }
         var input=msg.content.toLowerCase();
         //Plain text social responses
         if (input.match(/^h(e(llo)?|i|y)a?.* carl.*/)) {
@@ -229,6 +262,7 @@ Carl.on('message', msg => {
         }
         
         // recs reply
+        /*
         if (args=input.match(/^!recs? ?(.*)?/)) {
             if (args[1]) {
                 say= (Recs.get(args[1]));
@@ -236,7 +270,7 @@ Carl.on('message', msg => {
             else {
                 say= (Recs.getRandom());
             }
-            msg.channel.send(new Discord.RichEmbed()
+            msg.reply(new Discord.RichEmbed()
 			.setColor('#FFAA00')
 			.setDescription(say));
             say=undefined;
@@ -277,7 +311,7 @@ Carl.on('message', msg => {
 });
 
 // Member greeting
-Carl.on('guildMemberAdd', member => {
+client.on('guildMemberAdd', member => {
     newconn.send(Mbr(member,1)+", welcome! Please read everything in "+RulesRef+", "+PlexRef+", and "+CalibreRef+", then come back here and tell me, \"**I understand**,\" to continue.");
 });
-Carl.login(auth.token);
+client.login(token);
