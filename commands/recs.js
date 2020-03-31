@@ -14,9 +14,9 @@
             files: []
         },
 */
+const fs = require('fs');
 const cat={tv:"show",movie:"movie",music:"song",audiobook:"audiobook",book:"book",rpg:"role-playing game",comic:"comic book"};
 const lib={tv:"TV English",movie:"Movies",music:"Music",audiobook:"Audiobook",book:"Book",rpg:"RPG",comic:"Comics"};
-const fs = require('fs');
 const recfile="data/recommends.txt";
 const namefile="data/names.txt";
 var compare={};
@@ -67,10 +67,13 @@ module.exports={
                 if (load(args)) {
                     message.reply("Thank you for your recommendation.");
                     // add/update name lookup
-                    if (!name[args[0]]) name[args[0]]=message.member.nickname||message.author.username;
+                    if (!name[args[0]]) {
+                        name[args[0]]=message.member.nickname||message.author.username;
+                        // write namefile
+                        fs.fileAppendSync(namefile,'"'+args[0]+'"'+name[args[0]]+"\n");
+                    }
                     // write recfile
                     fs.fileWriteSync(recfile,list.map((a) => {return '"'+a.join('","')+'"'}).join("\n")+"\n");
-                    // write namefile
                 }
                 else {
                     
