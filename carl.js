@@ -11,28 +11,18 @@
 */
 
 // Set constants
-findCommands=function(client,command,window) {
+findCommands=function(client,command) {
     //console.log(Object.keys(command));
-    if (Object.keys(command).includes("name") && Object.keys(command).includes("execute")) {
-        client.commands.set(command.name, command);
-    }
-    else Object.keys(command).forEach((c) => {
-        findCommands(client,command[c],window);
-    });
+    if (Object.keys(command).includes("name") && Object.keys(command).includes("execute")) client.commands.set(command.name, command);
+    else Object.keys(command).forEach((c) => {findCommands(client,command[c]);});
 }
-const fs = require('fs');
-const Discord = require('discord.js');
-const { prefix, token } = require('/home/plex/bots/authCarl.json');
-const client = new Discord.Client();
-client.commands = new Discord.Collection();
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-for (const file of commandFiles) {
-    // Check if the object adheres to best practices
-    // and set a new item in the Collection
-    // with the key as the command name and the value as the exported module
-    // searching recursively.
-	findCommands(client,require(`./commands/${file}`),this);
-}
+const fs=require('fs');
+const Discord=require('discord.js');
+const {prefix,token}=require('/home/plex/bots/authCarl.json');
+const client=new Discord.Client();
+client.commands=new Discord.Collection();
+const commandFiles=fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+for (const file of commandFiles) findCommands(client,require(`./commands/${file}`));
 
 const Ch = require('./commands/ch.js');
 const Em = require('./commands/em.js');
@@ -51,14 +41,14 @@ function Check(srv,chan,pass) {
                     if(srv==Server[r]) s=r;
                 }
                 if (success === true && sc.stdout != "") {
-                    if (sc.stdout.substr(0,6) == "active") {
+                    if (sc.stdout.slice(0,6) == "active") {
                         if (Online[Server[s]] === false&&OnMsg[s]) {
-                            var say=new Array(code[Server[s]].slict(0,1).toUpperCase()+code[Server[s]].slice(1)+" has just reopened.");
+                            var say=new Array(code[Server[s]].slice(0,1).toUpperCase()+code[Server[s]].slice(1)+" has just reopened.");
                             onconn.send(say[Math.floor(Math.random()*say.length)]);
                         }
                         Online[Server[s]]=true;
                     }
-                    else if (sc.stdout.substr(0,6) != "active") {
+                    else if (sc.stdout.slice(0,6) != "active") {
                         if (Online[Server[s]] === true&&OffMsg[s]) {
                             var say=new Array(code[Server[s]].slice(0,1).toUpperCase()+code[Server[s]].slice(1)+" has just closed.");
                             onconn.send(say[Math.floor(Math.random()*say.length)]);
@@ -190,14 +180,10 @@ client.on('message', msg => {
     if (client.id != msg.author.id) {
         const args = msg.content.slice(prefix.length).split(/ +/);
         const commandName = args.shift().toLowerCase();
-
         if (!client.commands.has(commandName)) return;
-
         const command=client.commands.get(commandName);
-        
         try {
             command.execute(msg, args);
-
         } catch (error) {
             console.error(error);
             console.log('there was an error trying to execute '+command+'!');
