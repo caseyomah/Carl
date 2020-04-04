@@ -3,3 +3,4 @@
 "341458616424857602","tv","Firefly","This space western is an absolute must see!  Brilliant characters and only 13 episodes, so it's not much of a commitment."
 "341458616424857602","tv","Nikita","This reboot of 'La Femme Nikita' is an action-thriller. All the characters are amazing!"
 "253484104014757889","movie","John Wick","Great special effects, LOTs of action, and a good idea of realistic martial arts, and weapons training."
+"253484104014757889","tv","Supernatural","Really good show about a family that fights demons, along with the Angel Castiel. Each episode keeps you intrigued with action, suspense, danger, and even love in some cases."

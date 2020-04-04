@@ -1,18 +1,22 @@
 /*
-        RichEmbed:{
-            title: undefined,
-            description: undefined,
-            url: undefined,
-            color: undefined,
-            author: undefined,
-            timestamp: undefined,
-            fields: [],
-            thumbnail: undefined,
-            image: undefined,
-            footer: undefined,
-            file: undefined,
-            files: []
-        },
+    ToDo:
+        Add keyword startsWith search (user|category|title|description] (Falls through to full data (not user) search
+*/
+/*
+    RichEmbed:{
+        title: undefined,
+        description: undefined,
+        url: undefined,
+        color: undefined,
+        author: undefined,
+        timestamp: undefined,
+        fields: [],
+        thumbnail: undefined,
+        image: undefined,
+        footer: undefined,
+        file: undefined,
+        files: []
+    },
 */
 const fs = require('fs');
 const cat={tv:"show",movie:"movie",music:"song",audiobook:"audiobook",book:"book",rpg:"role-playing game",comic:"comic book"};
@@ -47,12 +51,22 @@ module.exports={
             if (args.length==0) do args=[Math.floor(Math.random()*list.length)];
             while (args[0]==this.lastShown && list.length > 1);
             var embed=(() => {return this.rich})();
-            if (Number(args[0])<=list.length) {
+            if (!isNaN(args[0]) && Number(args[0])<=list.length) {
                 var r=list[Number(--args[0])];
                 embed.description="Have you seen the "+cat[r.cat]+" **"+r.title+"**? "+name[r.user]+" recommends it saying, '"+r.reason+'" Check it out in the '+lib[r.cat]+" library!";
                 this.lastShown=r;
             }
-            else embed.description="I only have "+list.length.toLocaleString()+" recommendations. I can't locate the one you asked for.";
+            else {
+                var found=list.filter((o)=>{return Object.values(o).join(",").toLowerCase().includes(args.join(" ").toLowerCase());})
+                if (found.length>=1) { [];
+                    var r=found[Math.floor(Math.random()*found.length)];
+                embed.description="Have you seen the "+cat[r.cat]+" **"+r.title+"**? "+name[r.user]+" recommends it saying, '"+r.reason+'" Check it out in the '+lib[r.cat]+" library!";
+                this.lastShown=r;
+                }
+                else {
+                    embed.description="I only have "+list.length.toLocaleString()+" recommendations. I can't locate the one you asked for.";
+                }
+            }
             message.channel.send({embed});
         }
     },

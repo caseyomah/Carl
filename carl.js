@@ -53,7 +53,7 @@ client.on('ready', () => {
     newconn = Ch.get(client,"welcome");
 
     // uncomment below to set client to send to testing channel. (Ushers/Producer only)
-    //onconn=offconn;
+    // onconn=offconn;
 
     // Links to roles and channels.
     CastingRef=Role.ref("CaStInG");
