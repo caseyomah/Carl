@@ -1,12 +1,12 @@
-function Check(srv,chan,pass) {
+function Check(args,chan,pass) {
     var shellCommand = require("linux-shell-command").shellCommand;
     for (var s=0;s<Server.length;s++) {
-        if (srv == Server[s]) {
+        if (args == Server[s]) {
             var sc = shellCommand("systemctl status "+ServerProc[s]+"|grep Active|while read a b c;do echo $b;done");
             sc.execute()
             .then(success => {
                 for (var r in Server) {
-                    if(srv==Server[r]) s=r;
+                    if(args==Server[r]) s=r;
                 }
                 if (success === true && sc.stdout != "") {
                     if (sc.stdout.slice(0,6) == "active") {
@@ -29,21 +29,21 @@ function Check(srv,chan,pass) {
                 console.error(e);
             });
         }
-        else if (srv==ServerProc[s]) {
+        else if (args==ServerProc[s]) {
             Check(Server[s],chan);
         }
-        else if (srv==""||srv=="all") {
+        else if (args==""||args=="all") {
             Check(Server[s],chan,"all");
         }
     }
-    if(chan) Report(srv,chan);
+    if(chan) Report(args,chan);
 }
 function Mbr(mem,leadcap) {
     return leadcap?mem||"Friend":mem||"friend";
 }
-function Report(srv,chan,tag) {
+function Report(args,chan,tag) {
     var ch=chan||onconn;
-    if (srv==""||srv=="all") {
+    if (args==""||args=="all") {
         if (Online["plex"] && Online["calibre"]) {
             var say=new Array("The theater and library are open. Everything appears to be running smoothly.");
             ch.send(say[Math.floor(Math.random()*say.length)]);
@@ -68,24 +68,24 @@ function Report(srv,chan,tag) {
     }
     else {
         var stat;
-        if (srv=="plex"||srv=="calibre") {
-            if (Online[srv]) stat="open.";
+        if (args=="plex"||args=="calibre") {
+            if (Online[args]) stat="open.";
             else stat="closed.";
         }
         else {
-            if (Online[srv]) stat="up.";
+            if (Online[args]) stat="up.";
             else stat="down.";
         }
-        if(code[srv]&&stat) {
+        if(code[args]&&stat) {
             if (tag) {
-                ch.send(tag+", "+code[srv]+" is "+stat);
+                ch.send(tag+", "+code[args]+" is "+stat);
             }
             else {
-                ch.send(code[srv].substr(0,1).toUpperCase()+code[srv].substr(1)+" is "+stat);
+                ch.send(code[args].substr(0,1).toUpperCase()+code[args].substr(1)+" is "+stat);
             }
         }
     }
-]
+}
     // Arrays of services and other related sundries.
     Server=new Array("plex","calibre","ftp");
     ServerProc=new Array("plexmediaserver","calibre-server","proftpd");
@@ -98,8 +98,8 @@ function Report(srv,chan,tag) {
     Online=new Array();
 
     // Fill Online status array with indeterminant state.
-    for (srv in Server) {
-        Online[Server[srv]]="unknown";
+    for (args in Server) {
+        Online[Server[args]]="unknown";
     }
     // First check
     Check('');
@@ -107,19 +107,21 @@ function Report(srv,chan,tag) {
     // Repeat checks
     setInterval(function() {Check('')},5000);
         // ping reply
-        if (input.match(/^!ping/)) {
-            var srv=input.slice(6);
-            if (srv.length>0) {
-                srv=srv.split(" ");
-                if (srv.length==3 && srv[1]=="for") {
-                    Report(srv[0],msg.channel,srv[2]);
-                }
-                else {
-                    for (var a=0;a<srv.length;a++) {
-                        Report(srv[a],msg.channel);
-                    }
-                }
-            }
-            else Report("",msg.channel);
+module.exports={
+    name:"ping",
+    description:"Check the status of servers",
+    execute(message,args) {
+        if (args.length==3 && args[1]=="for") {
+            Report(args[0],message.channel,args[2]);
         }
+        else if (args.length==0) {
+            Report("",message.channel);
+        }
+        else {
+            args.forEach((a)=> {
+                Report(a,message.channel);
+            });
+        }
+    }
+}
         

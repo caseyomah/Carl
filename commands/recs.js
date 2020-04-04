@@ -44,12 +44,11 @@ module.exports={
         },
         description:"Request a recommendation",
         execute(message,args) {
-                    console.log();
             if (args.length==0) do args=[Math.floor(Math.random()*list.length)];
             while (args[0]==this.lastShown && list.length > 1);
             var embed=(() => {return this.rich})();
-            if (Number(args[0])<list.length) {
-                var r=list[Number(args[0])];
+            if (Number(args[0])<=list.length) {
+                var r=list[Number(--args[0])];
                 embed.description="Have you seen the "+cat[r.cat]+" **"+r.title+"**? "+name[r.user]+" recommends it saying, '"+r.reason+'" Check it out in the '+lib[r.cat]+" library!";
                 this.lastShown=r;
             }
@@ -61,28 +60,39 @@ module.exports={
         name:"recadd",
         description:"Tell me a recommendation to offer later",
         execute(message,args) {
-            args=args.join(" ").slice(1,-1).split('" "');
+            args=message.content.slice(8).slice(1,-1).split('" "');
             args.unshift(message.author.id);
             if (args.length==4) {
+                args[1]=args[1].toLowerCase();  
                 if (load(args)) {
                     message.reply("Thank you for your recommendation.");
                     // add/update name lookup
                     if (!name[args[0]]) {
                         name[args[0]]=message.member.nickname||message.author.username;
                         // write namefile
-                        fs.fileAppendSync(namefile,'"'+args[0]+'"'+name[args[0]]+"\n");
+                        fs.appendFileSync(namefile,'"'+args[0]+'","'+name[args[0]]+'"\n');
                     }
                     // write recfile
-                    fs.fileWriteSync(recfile,list.map((a) => {return '"'+a.join('","')+'"'}).join("\n")+"\n");
+                    fs.writeFileSync(recfile,list.map((a)=>{return '"'+Object.values(a).join('","')+'"';}).join("\n")+"\n");
                 }
                 else {
                     
                 }
             }
             else {
-                cats=cat.keys()
+                cats=Object.keys(cat);
                 //message.reply('To add a recommendation tell me `!recadd "`**');
             }
+        }
+    },
+    recname:{
+        name:"recname",
+        description:"Change how your name is displayed on your recommendations",
+        execute(message,args) {
+            args=message.content.slice(9);
+            name[message.author.id]=args;
+            fs.appendFileSync(namefile,'"'+message.author.id+'","'+name[message.author.id]+'"\n');
+            message.reply('Your recommendation display name has been changed to "'+args+'"');
         }
     }
 };

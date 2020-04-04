@@ -23,100 +23,14 @@ const client=new Discord.Client();
 client.commands=new Discord.Collection();
 const commandFiles=fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 for (const file of commandFiles) findCommands(client,require(`./commands/${file}`));
-
 const Ch = require('./commands/ch.js');
 const Em = require('./commands/em.js');
 const Role = require('./commands/role.js');
 Recs = require("./commands/recs.js");
 
 // Define Functions
-function Check(srv,chan,pass) {
-    var shellCommand = require("linux-shell-command").shellCommand;
-    for (var s=0;s<Server.length;s++) {
-        if (srv == Server[s]) {
-            var sc = shellCommand("systemctl status "+ServerProc[s]+"|grep Active|while read a b c;do echo $b;done");
-            sc.execute()
-            .then(success => {
-                for (var r in Server) {
-                    if(srv==Server[r]) s=r;
-                }
-                if (success === true && sc.stdout != "") {
-                    if (sc.stdout.slice(0,6) == "active") {
-                        if (Online[Server[s]] === false&&OnMsg[s]) {
-                            var say=new Array(code[Server[s]].slice(0,1).toUpperCase()+code[Server[s]].slice(1)+" has just reopened.");
-                            onconn.send(say[Math.floor(Math.random()*say.length)]);
-                        }
-                        Online[Server[s]]=true;
-                    }
-                    else if (sc.stdout.slice(0,6) != "active") {
-                        if (Online[Server[s]] === true&&OffMsg[s]) {
-                            var say=new Array(code[Server[s]].slice(0,1).toUpperCase()+code[Server[s]].slice(1)+" has just closed.");
-                            onconn.send(say[Math.floor(Math.random()*say.length)]);
-                        }
-                        Online[Server[s]]=false;
-                    }
-                }
-            })
-            .catch(e => {
-                console.error(e);
-            });
-        }
-        else if (srv==ServerProc[s]) {
-            Check(Server[s],chan);
-        }
-        else if (srv==""||srv=="all") {
-            Check(Server[s],chan,"all");
-        }
-    }
-    if(chan) Report(srv,chan);
-}
 function Mbr(mem,leadcap) {
     return leadcap?mem||"Friend":mem||"friend";
-}
-function Report(srv,chan,tag) {
-    var ch=chan||onconn;
-    if (srv==""||srv=="all") {
-        if (Online["plex"] && Online["calibre"]) {
-            var say=new Array("The theater and library are open. Everything appears to be running smoothly.");
-            ch.send(say[Math.floor(Math.random()*say.length)]);
-        }
-        else if (Online["plex"] && !Online["calibre"]) {
-            var say=new Array("The theater is open, however the library is currently closed... likely for restocking.");
-            ch.send(say[Math.floor(Math.random()*say.length)]);
-        }
-        else if (!Online["plex"] && Online["calibre"]) {
-            var say=new Array("The theater is currently closed, would you like to visit the library instead?");
-            ch.send(say[Math.floor(Math.random()*say.length)]);
-        }
-        else if(Online["ftp"]) {
-            var say=new Array("Both the theater and library are closed. Have you considered asking one of our @Casting staff about FTP access?");
-            ch.send(say[Math.floor(Math.random()*say.length)]);
-        }
-        else {
-            Casting = client.channel.server.roles.mention("name","Casting");
-            var say=new Array(CastingRef+", we appear to be running by candlelight. Nothing is working. Why am I not at home?");
-            ch.send(say[Math.floor(Math.random()*say.length)]);
-        }
-    }
-    else {
-        var stat;
-        if (srv=="plex"||srv=="calibre") {
-            if (Online[srv]) stat="open.";
-            else stat="closed.";
-        }
-        else {
-            if (Online[srv]) stat="up.";
-            else stat="down.";
-        }
-        if(code[srv]&&stat) {
-            if (tag) {
-                ch.send(tag+", "+code[srv]+" is "+stat);
-            }
-            else {
-                ch.send(code[srv].substr(0,1).toUpperCase()+code[srv].substr(1)+" is "+stat);
-            }
-        }
-    }
 }
 
 // acknowledge ready state
@@ -148,47 +62,26 @@ client.on('ready', () => {
     PlexRef=Ch.ref("plex");
 	HelpRef=Ch.ref("help");
 
-    // Arrays of services and other related sundries.
-    Server=new Array("plex","calibre","ftp");
-    ServerProc=new Array("plexmediaserver","calibre-server","proftpd");
-    code=new Array();
-    code["plex"]="the theater";
-    code["calibre"]="the library";
-    code["ftp"]="FTP access";
-    OnMsg=new Array(true,true,false);
-    OffMsg=new Array(true,true,false);
-    Online=new Array();
-
-    // Fill Online status array with indeterminant state.
-    for (srv in Server) {
-        Online[Server[srv]]="unknown";
-    }
-
     // Wakeup message.
     var say=new Array("Sorry, I must have dozed off for a bit.","Please excuse me, the best scene just finished. I'm here now.","My apologies, I was a bit distracted.");
 	onconn.send(say[Math.floor(Math.random()*say.length)]);
-
-    // First check
-    Check('');
-
-    // Repeat checks
-    setInterval(function() {Check('')},5000);
 });
 
 // Reply to messages
 client.on('message', msg => {
-    if (client.id != msg.author.id) {
+    if (client.user.id !== msg.author.id) {
+        var input=msg.content.toLowerCase();
         const args = msg.content.slice(prefix.length).split(/ +/);
         const commandName = args.shift().toLowerCase();
-        if (!client.commands.has(commandName)) return;
-        const command=client.commands.get(commandName);
-        try {
-            command.execute(msg, args);
-        } catch (error) {
-            console.error(error);
-            console.log('there was an error trying to execute '+command+'!');
+        if (client.commands.has(commandName)) {
+            const command=client.commands.get(commandName);
+            try {
+                command.execute(msg, args);
+            } catch (error) {
+                console.error(error);
+                console.log('there was an error trying to execute '+command+'!');
+            }
         }
-        var input=msg.content.toLowerCase();
         //Plain text social responses
         if (input.match(/^h(e(llo)?|i|y)a?.* carl.*/)) {
             var say=new Array("Hello, "+Mbr(msg.member,0)+", is there something I can help you with?");
@@ -224,23 +117,6 @@ client.on('message', msg => {
             }
         }
 
-        // ping reply
-        if (input.match(/^!ping/)) {
-            var srv=input.slice(6);
-            if (srv.length>0) {
-                srv=srv.split(" ");
-                if (srv.length==3 && srv[1]=="for") {
-                    Report(srv[0],msg.channel,srv[2]);
-                }
-                else {
-                    for (var a=0;a<srv.length;a++) {
-                        Report(srv[a],msg.channel);
-                    }
-                }
-            }
-            else Report("",msg.channel);
-        }
-        
         // New Member follow-up
         if (input.match(/^\"?i understand.?\"?$/) && msg.channel == newconn) {
             newconn.send("Done? Great! Sorry to put you through that mess, but it was pretty important. Now, I'll slip a note to our "+CastingRef+" department. They should be by soon to answer any questions and let you in.");
@@ -261,11 +137,14 @@ client.on('message', msg => {
 			.setDescription(say));
             say=undefined;
         }
+        
+        
+        */
         //tips reply
         if (input.match(/^!tip/)) {
             var say=new Array(
-                "📺 ? ?️ Did you know? you can get access to the video library by sending a DM to Vaesse that includes your Plex email address, and a request for access.",
-                "📚 <:die:342484331941593088> 💥 Did you know? You can get access to our library of E-Books by requesting access to Calibre in the "+HelpRef+" channel!",
+                "📺 🎞️ Did you know? you can get access to the video library by sending a DM to Vaesse that includes your Plex email address, and a request for access.",
+                "📚 🎲 💥 Did you know? You can get access to our library of E-Books by requesting access to Calibre in the "+HelpRef+" channel!",
                 "Need FTP access? You can request it in the "+HelpRef+" channel!",
                 "📖 Looking for audiobooks? Check in the Audiobooks library! If you don't see it, check under the Music library. Still can't find it? Ask for help in the "+HelpRef+" channel, and someone will assist you soon!",
                 "Having technical issues, or something is not working as expected? Ask for assistance in the "+HelpRef+" channel, and one of our volunteer Tech Support reps will get back to you soon!",
@@ -280,11 +159,11 @@ client.on('message', msg => {
         
         /* Unicode Symbols for various services
         *	 📺   TV
-        *	 ? ?️   Movies
+        *	 🎞️  Movies
         *	 🎵   Music
         *	 📖   Audiobook
         *	 📚   Book
-        *	 <:die:342484331941593088>   RPG
+        *	 🎲   RPG
         *	 💥   Comics
         */
         
