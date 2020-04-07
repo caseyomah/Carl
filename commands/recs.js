@@ -1,6 +1,6 @@
 /*
     ToDo:
-        Add keyword startsWith search (user|category|title|description] (Falls through to full data (not user) search
+        Add keyword startsWith search (count|user|category|title|description] (Falls through to full data (not user) search
 */
 /*
     RichEmbed:{
@@ -18,27 +18,32 @@
         files: []
     },
 */
-const fs = require('fs');
+const CSV=require('./csv.js');
+//const f/s = require('fs');
 const cat={tv:"show",movie:"movie",music:"song",audiobook:"audiobook",book:"book",rpg:"role-playing game",comic:"comic book"};
 const lib={tv:"TV English",movie:"Movies",music:"Music",audiobook:"Audiobook",book:"Book",rpg:"RPG",comic:"Comics"};
 const recfile="data/recommends.txt";
 const namefile="data/names.txt";
 var compare={};
 list=[];
-
-function parseCSV(file,a) {
-    var contents=fs.readFileSync(file, 'utf8');
-    while (contents.slice(-1)=="\n") contents=contents.slice(0,-1);
-    arr=contents.split("\n").map((line)=>{return line.slice(1,-1).split('","');});
-    if (a) {
-        aarr=[];
-        arr.forEach((line)=>{var key=line.shift();aarr[key]=line.length==1?line[0]:line;});
-        arr=aarr;
+//list.toString=()=>{console.log(this);};
+class Recommendation {
+    constructor(u,c,t,r) {
+        this.user=u;
+        this.cat=c;
+        this.title=t;
+        this.reason=r;
     }
-    return arr;
+    toString() {
+        return (Object.values(this)).join('","');
+    };
+
 }
-parseCSV(recfile).forEach(load);
-name=parseCSV(namefile,1);
+function parseCSV(file,a) {
+    return CSV.readArraySync(file,'utf8',a);
+}
+CSV.readArraySync(recfile).forEach(load);
+name=CSV.readArraySync(namefile,'utf8',1);
 module.exports={
     rec:{
         name:"rec",
@@ -48,8 +53,14 @@ module.exports={
         },
         description:"Request a recommendation",
         execute(message,args) {
+            var keywords=["counts","username","type","name","description"];
+            var opts={};
+            while (matchedKeys=keywords.filter((word)=>{return word.startsWith(args[0])}),matchedKeys.length&&args[0]!="*") {
+                opts[matchedKeys[0]]=1;
+                args.shift();
+            }
             if (args.length==0) do args=[Math.floor(Math.random()*list.length)];
-            while (args[0]==this.lastShown && list.length > 1);
+            while (args[0]==this.lastShown&&list.length>1);
             var embed=(() => {return this.rich})();
             if (!isNaN(args[0]) && Number(args[0])<=list.length) {
                 var r=list[Number(--args[0])];
@@ -73,6 +84,7 @@ module.exports={
     recadd:{
         name:"recadd",
         description:"Tell me a recommendation to offer later",
+        usage:'"',
         execute(message,args) {
             args=message.content.slice(8).slice(1,-1).split('" "');
             args.unshift(message.author.id);
@@ -84,10 +96,10 @@ module.exports={
                     if (!name[args[0]]) {
                         name[args[0]]=message.member.nickname||message.author.username;
                         // write namefile
-                        fs.appendFileSync(namefile,'"'+args[0]+'","'+name[args[0]]+'"\n');
+                        CSV.writeObjectSync(namefile,name);
                     }
                     // write recfile
-                    fs.writeFileSync(recfile,list.map((a)=>{return '"'+Object.values(a).join('","')+'"';}).join("\n")+"\n");
+                    CSV.writeArraySync(recfile,list);
                 }
                 else {
                     
@@ -105,14 +117,13 @@ module.exports={
         execute(message,args) {
             args=message.content.slice(9);
             name[message.author.id]=args;
-            fs.appendFileSync(namefile,'"'+message.author.id+'","'+name[message.author.id]+'"\n');
+            CSV.writeObjectSync(namefile,name);
             message.reply('Your recommendation display name has been changed to "'+args+'"');
         }
     }
 };
 function load(rec) {
-    var o={};
-    [o.user,o.cat,o.title,o.reason]=rec;
+    var o=new Recommendation(...rec);
     for (a of list) {
         Object.keys(a).forEach((b) => {
         if ((""+a[b]).localeCompare(o[b], undefined, { sensitivity: 'base' })==0) compare[b]+=1;
@@ -123,13 +134,3 @@ function load(rec) {
     }
     return list.push(o);
 }
-
-/*
-var contents=fs.readFileSync(recfile, 'utf8')
-while (contents.slice(-1)=="\n") contents=contents.slice(0,-1);
-recs=contents.split("\n");
-for (var a in recs) {
-    recs[a]=recs[a].slice(1,-1).split('","');
-    load(recs[a]);
-}
-*/

@@ -12,10 +12,10 @@
 
 // Set constants
 findCommands=function(client,command) {
-    //console.log(Object.keys(command));
     if (Object.keys(command).includes("name") && Object.keys(command).includes("execute")) client.commands.set(command.name, command);
     else Object.keys(command).forEach((c) => {findCommands(client,command[c]);});
 }
+
 const fs=require('fs');
 const Discord=require('discord.js');
 const {prefix,token}=require('/home/plex/bots/authCarl.json');
@@ -26,10 +26,11 @@ for (const file of commandFiles) findCommands(client,require(`./commands/${file}
 const Ch = require('./commands/ch.js');
 const Em = require('./commands/em.js');
 const Role = require('./commands/role.js');
-Recs = require("./commands/recs.js");
+const Recs = require("./commands/recs.js");
 
 // Define Functions
 function Mbr(mem,leadcap) {
+    console.error("Mbr in use.");
     return leadcap?mem||"Friend":mem||"friend";
 }
 
@@ -170,13 +171,13 @@ client.on('message', msg => {
         
         // help text
         if (input.match(/^!help/)||input.match(/^help.*carl.*/)) {
-            msg.channel.send(Mbr(msg.member,1)+', here\'s a quick help list!\n\n!ping ["plex"/"calibre"/"ftp"/"all"/""] - Asks me the status of various services.\n!tips - Asks me for a random tip.\n!help - Tells me to display this message.\n\nIf you need assistance or have a suggestion for my service, let a member of our Casting staff know in '+HelpRef+'.');
+            msg.channel.send(msg.author+', here\'s a quick help list!\n\n!ping ["plex"/"calibre"/"ftp"/"all"/""] - Asks me the status of various services.\n!tips - Asks me for a random tip.\n!help - Tells me to display this message.\n\nIf you need assistance or have a suggestion for my service, let a member of our Casting staff know in '+HelpRef+'.');
         }
     }
 });
 
 // Member greeting
 client.on('guildMemberAdd', member => {
-    newconn.send(Mbr(member,1)+", welcome! Please read everything in "+RulesRef+", "+PlexRef+", and "+CalibreRef+", then come back here and tell me, \"**I understand**,\" to continue.");
+    newconn.send(member+", welcome! Please read everything in "+RulesRef+", "+PlexRef+", and "+CalibreRef+", then come back here and tell me, \"**I understand**,\" to continue.");
 });
 client.login(token);
