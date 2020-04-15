@@ -78,7 +78,15 @@ client.on('message', msg => {
             const command=client.commands.get(commandName);
             try {
                 command.execute(msg, args);
-            } catch (error) {
+                if (command.args && !args.length) {
+                    let reply = `You didn't provide any arguments, ${message.author}!`;
+                    if (command.usage) {
+                        reply += `\nThe proper usage would be: \`${prefix}${command.name} ${command.usage}\``;
+                    }
+                    return message.channel.send(reply);
+                }
+            }
+            catch (error) {
                 console.error(error);
                 console.log('there was an error trying to execute '+command+'!');
             }
@@ -107,6 +115,7 @@ client.on('message', msg => {
             msg.channel.send(say[Math.floor(Math.random()*say.length)]);
         }
         //// Programatic triggers
+        require("./commands/asyouwish.js")(msg);
         // emote
         if (input.match(/^!emote/)) {
             var em=input.slice(7);

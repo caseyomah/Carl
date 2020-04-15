@@ -47,11 +47,12 @@ name=CSV.readArraySync(namefile,'utf8',1);
 module.exports={
     rec:{
         name:"rec",
+        description:"Request a recommendation",
+        usage:"[<keyword> [...<keyword>]] [<searchTerm>]",
         rich:{
             color: 0xFF9900,
             title: "Recommendation"
         },
-        description:"Request a recommendation",
         execute(message,args) {
             var keywords=["counts","username","type","name","description"];
             var opts={};
@@ -84,7 +85,8 @@ module.exports={
     recadd:{
         name:"recadd",
         description:"Tell me a recommendation to offer later",
-        usage:'"',
+        usage:'"<type>" "<name>" "<description>"\n\nValid types are: '+Object.keys(cat).join(", ")+'.',
+        args:true,
         execute(message,args) {
             args=message.content.slice(8).slice(1,-1).split('" "');
             args.unshift(message.author.id);
@@ -114,6 +116,8 @@ module.exports={
     recname:{
         name:"recname",
         description:"Change how your name is displayed on your recommendations",
+        usage:"<new name>",
+        args:true,
         execute(message,args) {
             args=message.content.slice(9);
             name[message.author.id]=args;
