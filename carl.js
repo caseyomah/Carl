@@ -35,7 +35,7 @@ function Mbr(mem,leadcap) {
 }
 
 // acknowledge ready state
-client.on('ready', () => {
+client.once('ready', () => {
     // console.log('Logged in as ${client.user.tag)!');
     
     //define Ch and Role objects.
@@ -70,6 +70,7 @@ client.on('ready', () => {
 
 // Reply to messages
 client.on('message', msg => {
+    require("./commands/asyouwish.js")(msg);
     if (client.user.id !== msg.author.id) {
         var input=msg.content.toLowerCase();
         const args = msg.content.slice(prefix.length).split(/ +/);
@@ -115,7 +116,6 @@ client.on('message', msg => {
             msg.channel.send(say[Math.floor(Math.random()*say.length)]);
         }
         //// Programatic triggers
-        require("./commands/asyouwish.js")(msg);
         // emote
         if (input.match(/^!emote/)) {
             var em=input.slice(7);
