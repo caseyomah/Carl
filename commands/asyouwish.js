@@ -18,7 +18,7 @@ const types={"📺":["tv","show"],"🎞️":["movie","movie"],"🎵":["music","s
 var log={};
 Object.values(types).forEach(key=>log[key[0]]=CSV.readArraySync(filepath+key[0]+"."+ext));
 watchReacts=function(m,f,l,k,cc) {
-    const filter=(reaction,user)=>reaction.emoji.name==='✨'; //&&(user.roles.has("581334517151825920")||user.roles.has("581538686265589772"));
+    const filter=(reaction,user)=>reaction.emoji.name==='✨'&&(user.roles.has("581334517151825920")||user.roles.has("581538686265589772"));
     m.createReactionCollector(filter).on('collect', (r,c) => {
         t=[];
         log[f].forEach((v,i)=>{if (i!==k) t.push(v)});
@@ -62,7 +62,7 @@ if (!reacts) {
                     status=["Unknown","Upcoming","Ongoing","Ended"];
                     date=info[4].match(/^(.+), *(.*)$/);
                     if (!err&&!date) dmText="I'm sorry, I didn't understand your date and/or status.";
-                    else if (!err&&!status.includes(date[2])) dmText="I'm sorry, that is not a valid status.\n\nValid statuses are: "+status.join(/, */)+".";
+                    else if (!err&&!status.map(s=>s.toLowerCase()).includes(date[2].toLowerCase())) dmText="I'm sorry, that is not a valid status.\n\nValid statuses are: "+status.join(/, */)+".";
                     else if (err&&!info[5]) dmText="I'm sorry, what season of that "+type[1]+" again?";
                     else if (err&&!info[6]) dmText="I'm sorry, what episode of that "+type[1]+" again?";
                     else if (err&&!info[8]) dmText="I'm sorry, what was wrong with this "+type[1]+"?";
@@ -80,7 +80,7 @@ if (!reacts) {
                     status=["Unknown","Upcoming","TV Special","In Theater","DVD Release"];
                     date=info[4].match(/^(.+), *(.*)$/);
                     if (!err&&!date) dmText="I'm sorry, I didn't understand your date and/or status.";
-                    else if (!err&&!status.includes(date[2])) dmText="I'm sorry, that is not a valid status.\n\nValid statuses are: "+status.join(", ")+".";
+                    else if (!err&&!status.map(s=>s.toLowerCase()).includes(date[2].toLowerCase())) dmText="I'm sorry, that is not a valid status.\n\nValid statuses are: "+status.join(/, */)+".";
                     else if (err&&!info[8]) dmText="I'm sorry, what was wrong with this "+type[1]+"?";
                     else {
                         deleteMsg=false;
