@@ -18,7 +18,7 @@ const types={"📺":["tv","show"],"🎞️":["movie","movie"],"🎵":["music","s
 var log={};
 Object.values(types).forEach(key=>log[key[0]]=CSV.readArraySync(filepath+key[0]+"."+ext));
 watchReacts=function(m,f,l,k,cc) {
-    const filter=(reaction,user)=>reaction.emoji.name==='✨'&&(user.roles.has("581334517151825920")||user.roles.has("581538686265589772"));
+    const filter=(reaction,user)=>reaction.emoji.name==='✨'&&(m.guild.members.get(user.id).roles.has("581334517151825920")||m.guild.members.get(user.id).roles.has("581538686265589772"));
     m.createReactionCollector(filter).on('collect', (r,c) => {
         t=[];
         log[f].forEach((v,i)=>{if (i!==k) t.push(v)});
@@ -48,10 +48,10 @@ module.exports=function(message) {
     const chan=message.client.guilds.get("581333387403329557").channels.get((err?"581603029263056921":"581339870790680586"));
     const mode=err?"report":"request";
     let deleteMsg=true,type=undefined,dmText="I'm sorry, this channel is reserved for "+mode+"s, please take conversations to "+chatchan+".";
-if (!reacts) {
-    reacts=true;
-    Object.keys(log).forEach(f=>log[f].forEach((l,k)=>chan.fetchMessage(l[1]).then(m=>watchReacts(m,f,l,k,chatchan)).catch()));
-}
+    if (!reacts) {
+        reacts=true;
+        Object.keys(log).forEach(f=>log[f].forEach((l,k)=>chan.fetchMessage(l[1]).then(m=>watchReacts(m,f,l,k,chatchan)).catch(console.error)));
+    }
     if (message.channel==chan) {
         info=message.content.match(err?/^(🛑)?\s*(\S+)\s+\*\*(.*)\*\*\s+\((.*)\)\s*-?\s*S?(\d{2})?E?(\d{2})?(\s+\*(.*)\*)?$/:/^(🛑)?\s*(\S+)\s+\*\*(.*)\*\*\s+\((.*)\)(\s+on\s+(.+))?(\s+\*(.*)\*)?$/);
         if (info && info.length==9&&info[2]&&!err==!info[1]) {
@@ -60,9 +60,10 @@ if (!reacts) {
                     //:tv:   **TITLE** (DATE, STATUS [Upcoming, Ongoing, Ended]) on CHANNEL *OPTIONAL NOTES TO HELP DIFFERENTIATE*
                     type=types[info[2]];
                     status=["Unknown","Upcoming","Ongoing","Ended"];
-                    date=info[4].match(/^(.+), *(.*)$/);
+                    date=info[4].match(/^(.+),\s*(.*)$/);
                     if (!err&&!date) dmText="I'm sorry, I didn't understand your date and/or status.";
-                    else if (!err&&!status.map(s=>s.toLowerCase()).includes(date[2].toLowerCase())) dmText="I'm sorry, that is not a valid status.\n\nValid statuses are: "+status.join(/, */)+".";
+                    else if (!err&&!status.map(s=>s.toLowerCase()).includes(date[2].toLowerCase())) dmText="I'm sorry, that is not a valid status.\n\nValid statuses are: "+status.join(", ")+".";
+                    else if (err&&!info[4]) dmText="Oops! what's the release year?";
                     else if (err&&!info[5]) dmText="I'm sorry, what season of that "+type[1]+" again?";
                     else if (err&&!info[6]) dmText="I'm sorry, what episode of that "+type[1]+" again?";
                     else if (err&&!info[8]) dmText="I'm sorry, what was wrong with this "+type[1]+"?";
@@ -78,9 +79,10 @@ if (!reacts) {
                     //:film_frames:  **TITLE** (DATE, STATUS [Upcoming, TV Special, In Theater, DVD Release]) *OPTIONAL NOTES TO HELP DIFFERENTIATE*
                     type=types[info[2]];
                     status=["Unknown","Upcoming","TV Special","In Theater","DVD Release"];
-                    date=info[4].match(/^(.+), *(.*)$/);
+                    date=info[4].match(/^(.+),\s*(.*)$/);
                     if (!err&&!date) dmText="I'm sorry, I didn't understand your date and/or status.";
                     else if (!err&&!status.map(s=>s.toLowerCase()).includes(date[2].toLowerCase())) dmText="I'm sorry, that is not a valid status.\n\nValid statuses are: "+status.join(/, */)+".";
+                    else if (err&&!info[4]) dmText="Oops! what's the release year?";
                     else if (err&&!info[8]) dmText="I'm sorry, what was wrong with this "+type[1]+"?";
                     else {
                         deleteMsg=false;
@@ -97,7 +99,7 @@ if (!reacts) {
                     if (tags.length!=n.length) {
                         dmText="I'm sorry, "+(tags.length>n.length?"I can not accept a space-hyphen-space (` - `) in "+n.slice(0,-1).join(", ")+" or "+n[n.length-1]+".":"you must specify "+n.slice(0,-1).join(", ")+" and "+n[n.length-1]+" separated by space-hyphen-space (` - `) for me to accept your "+mode+".");
                     }
-                    else if (!info[4].match(/^\S{4}$/)) dmText="I'm sorry, when was that "+type[1]+" released?";
+                    else if (!info[4].match(/^\S{4}$/)) dmText="I'm sorry, when was that "+type[1]+" released?\nUse `????` if unknown.";
                     else if (!info[8]&&err) dmText="I'm sorry, what was wrong with this "+type[1]+"?";
                     else {
                         deleteMsg=false;
@@ -113,7 +115,7 @@ if (!reacts) {
                     if (tags.length!=n.length) {
                         dmText="I'm sorry, "+(tags.length>n.length?"I can not accept a space-hyphen-space (` - `) in "+n.slice(0,-1).join(", ")+" or "+n[n.length-1]+".":"you must specify "+n.slice(0,-1).join(", ")+" and "+n[n.length-1]+" separated by space-hyphen-space (` - `) for me to accept your "+mode+".");
                     }                
-                    else if (!info[4].match(/^\S{4}$/)) dmText="I'm sorry, when was that "+type[1]+" released?";
+                    else if (!info[4].match(/^\S{4}$/)) dmText="I'm sorry, when was that "+type[1]+" released?\nUse `????` if unknown.";
                     else if (!info[8]&&err) dmText="I'm sorry, what was wrong with this "+type[1]+"?";
                     else {
                         deleteMsg=false;
@@ -129,7 +131,7 @@ if (!reacts) {
                     if (tags.length!=n.length) {
                         dmText="I'm sorry, "+(tags.length>n.length?"I can not accept a space-hyphen-space (` - `) in "+n.slice(0,-1).join(", ")+" or "+n[n.length-1]+".":"you must specify "+n.slice(0,-1).join(", ")+" and "+n[n.length-1]+" separated by space-hyphen-space (` - `) for me to accept your "+mode+".");
                     }                
-                    else if (!info[4].match(/^\S{4}$/)) dmText="I'm sorry, when was that "+type[1]+" released?";
+                    else if (!info[4].match(/^\S{4}$/)) dmText="I'm sorry, when was that "+type[1]+" released?\nUse `????` if unknown.";
                     else if (!info[8]&&err) dmText="I'm sorry, what was wrong with this "+type[1]+"?";
                     else {
                         deleteMsg=false;
@@ -145,7 +147,7 @@ if (!reacts) {
                     if (tags.length!=n.length) {
                         dmText="I'm sorry, "+(tags.length>n.length?"I can not accept a space-hyphen-space (` - `) in "+n.slice(0,-1).join(", ")+" or "+n[n.length-1]+".":"you must specify "+n.slice(0,-1).join(", ")+" and "+n[n.length-1]+" separated by space-hyphen-space (` - `) for me to accept your "+mode+".");
                     }                
-                    else if (!info[4].match(/^\S{4}$/)) dmText="I'm sorry, when was that "+type[1]+" released?";
+                    else if (!info[4].match(/^\S{4}$/)) dmText="I'm sorry, when was that "+type[1]+" released?\nUse `????` if unknown.";
                     else if (!info[8]&&err) dmText="I'm sorry, what was wrong with this "+type[1]+"?";
                     else {
                         deleteMsg=false;
@@ -161,7 +163,7 @@ if (!reacts) {
                     if (tags.length!=n.length) {
                         dmText="I'm sorry, "+(tags.length>n.length?"I can not accept a space-hyphen-space (` - `) in "+n.slice(0,-1).join(", ")+" or "+n[n.length-1]+".":"you must specify "+n.slice(0,-1).join(", ")+" and "+n[n.length-1]+" separated by space-hyphen-space (` - `) for me to accept your "+mode+".");
                     }                
-                    else if (!info[4].match(/^\S{4}$/)) dmText="I'm sorry, when was that "+type[1]+" released?";
+                    else if (!info[4].match(/^\S{4}$/)) dmText="I'm sorry, when was that "+type[1]+" released?\nUse `????` if unknown.";
                     else if (!info[8]&&err) dmText="I'm sorry, what was wrong with this "+type[1]+"?";
                     else {
                         deleteMsg=false;
