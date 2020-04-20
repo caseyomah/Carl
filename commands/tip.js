@@ -1,4 +1,4 @@
-modules.export={
+module.exports={
     name:"tip",
     description:"Request a tip",
     rich:{
@@ -14,7 +14,7 @@ modules.export={
                     "Having technical issues, or something is not working as expected? Ask for assistance in the "+HelpRef+" channel, and one of our volunteer Tech Support reps will get back to you soon!",
                     "Have a show, movie, album, or book you want to recommend to everyone?  Let us know what you love and why in the "+HelpRef+" channel, and we'll add a tip!"
                 );
-                var embed(()=>{return this.rich})();                embed.description=say[Math.floor(Math.random()*say.length)];
+                var embed=(()=>{return this.rich})();                embed.description=say[Math.floor(Math.random()*say.length)];
                 msg.channel.send({ embed });
             }
             // "🇹 🇮 🇵 Have you seen the show **Nikita**? Vaesse recommends it saying, \"This reboot of 'La Femme Nikita' is an action-thriller. All the characters are amazing!\" Check it out in the TV library!"
