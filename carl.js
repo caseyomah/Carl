@@ -31,11 +31,11 @@ const Recs = require("./commands/recs.js");
 // Define Functions
 function Mbr(mem,leadcap) {
     console.error("Mbr in use.");
-    return leadcap?mem||"Friend":mem||"friend";
+    return mem||((leadcap?"F":"f")+"riend");
 }
 
 // acknowledge ready state
-client.once('ready', () => {
+client.on('ready', () => {
     // console.log('Logged in as ${client.user.tag)!');
     
     //define Ch and Role objects.
@@ -75,7 +75,7 @@ client.on('message', msg => {
         var input=msg.content.toLowerCase();
         const args = msg.content.slice(prefix.length).split(/ +/);
         const commandName = args.shift().toLowerCase();
-        if (client.commands.has(commandName)) {
+        if (msg.content.startsWith(prefix+commandName)) {
             const command=client.commands.get(commandName);
             try {
                 command.execute(msg, args);
@@ -116,43 +116,12 @@ client.on('message', msg => {
                 var say=new Array("Oh my!","I'm sure I don't want to know.","You don't say...","My goodness.","Was that Star Trek or Star Wars?");
                 msg.channel.send(say[Math.floor(Math.random()*say.length)]);
             }
-            //// Programatic triggers
-            // emote
-            if (input.match(/^!emote/)) {
-                var em=input.slice(7);
-                if (em.length>0) {
-                    em=em.split(" ");
-                    for (var a=0;a<em.length;a++) {
-                        msg.channel.send("Emote:"+em[a]+"="+Em.find(em[a]));
-                    }
-                }
-            }
-
+  
             // New Member follow-up
             if (input.match(/^\"?i understand.?\"?$/) && msg.channel == newconn) {
                 newconn.send("Done? Great! Sorry to put you through that mess, but it was pretty important. Now, I'll slip a note to our "+CastingRef+" department. They should be by soon to answer any questions and let you in.");
                 setTimeout(function() {newconn.send("Oh, I almost forgot! Once you're in, if you need help, be sure to ask in the "+HelpRef+" channel. You can also type !help to see what I can help you with.")},5000);
             }
-            
-            // recs reply
-            /*
-            if (args=input.match(/^!recs? ?(.*)?/)) {
-                if (args[1]) {
-                    say= (Recs.get(args[1]));
-                }
-                else {
-                    say= (Recs.getRandom());
-                }
-                msg.reply(new Discord.RichEmbed()
-                .setColor('#FFAA00')
-                .setDescription(say));
-                say=undefined;
-            }
-            
-            
-            */
-            //tips reply
-            
             
             // help text
             if (input.match(/^!help/)||input.match(/^help.*carl.*/)) {

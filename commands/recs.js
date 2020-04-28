@@ -72,7 +72,7 @@ module.exports={
                 var found=list.filter((o)=>{return Object.values(o).join(",").toLowerCase().includes(args.join(" ").toLowerCase());})
                 if (found.length>=1) { [];
                     var r=found[Math.floor(Math.random()*found.length)];
-                embed.description="Have you seen the "+cat[r.cat]+" **"+r.title+"**? "+name[r.user]+" recommends it saying, '"+r.reason+'" Check it out in the '+lib[r.cat]+" library!";
+                embed.description="Have you seen the "+cat[r.cat]+" **"+r.title+"**? "+name[r.user]+' recommends it saying, "'+r.reason+'" Check it out in the '+lib[r.cat]+" library!";
                 this.lastShown=r;
                 }
                 else {
@@ -85,15 +85,15 @@ module.exports={
     recadd:{
         name:"recadd",
         description:"Tell me a recommendation to offer later",
-        usage:'"<type>" "<name>" "<description>"\n\nValid types are: '+Object.keys(cat).join(", ")+'.',
+        usage:'"<type>" "<name>" "<description>"\n\nValid types are: '+Object.keys(cat).join(", "),
         args:true,
         execute(message,args) {
             args=message.content.slice(8).slice(1,-1).split('" "');
             args.unshift(message.author.id);
             if (args.length==4) {
-                args[1]=args[1].toLowerCase();  
+                args[1]=args[1].toLowerCase();
                 if (load(args)) {
-                    message.reply("Thank you for your recommendation.");
+                    message.reply("thank you for your recommendation, added as recommendation "+list.length+".");
                     // add/update name lookup
                     if (!name[args[0]]) {
                         name[args[0]]=message.member.nickname||message.author.username;
@@ -104,12 +104,11 @@ module.exports={
                     CSV.writeArraySync(recfile,list);
                 }
                 else {
-                    
+                    message.reply("I'm sorry, there was a problem adding your recommendation, have you added it before?");
                 }
             }
             else {
-                cats=Object.keys(cat);
-                //message.reply('To add a recommendation tell me `!recadd "`**');
+                message.reply('to add a recommendation tell me `!recadd '+this.usage+'`');
             }
         }
     },
