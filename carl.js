@@ -11,24 +11,21 @@
 */
 
 // Set constants
-
-findPlugins=function(client,command,plg) {
-	if (Object.keys(command).includes("execute")) {
-		let key;
-		if ((plg=="social" && (key=Object.keys(social).includes("trigger"))) || (plg=="commands" && (key=Object.keys(command).includes("name")))) {
-			client[plg].set(key,command);
-		}
-	}
+const findPlugins=function(client,command,plg) {
+    let [prop,key]=plg;
+    if (Object.keys(command).includes("execute") && Object.keys(command).includes(key)) client[prop].set(key,command);
+	else Object.keys(command).forEach((c) => {findPlugins(client,command[c],plg);});
 }
+
 const fs=require('fs');
 const Discord=require('discord.js');
 const {prefix,token}=require('/home/plex/bots/authCarl.json');
 const client=new Discord.Client();
-let plugins=["commands","socials"];
+let plugins=[["commands","name"],["socials","trigger"]];
 plugins.forEach(plg=>{
-	client[plg]=new Discord.Collection();
-	let tmp=fs.readdirSync("./"+plg).filter(file => file.endsWith(".js"));
-	for (const file of tmp) findPlugins(client,require(`./${plg}/`+file,plg));
+    client[plg[0]]=new Discord.Collection();
+    let tmp=fs.readdirSync("./"+plg[0]).filter(file => file.endsWith(".js"));
+    for (const file of tmp) findPlugins(client,require(`./${plg[0]}/`+file,plg));
 });
 const Ch = require('./commands/ch.js');
 const Em = require('./commands/em.js');
