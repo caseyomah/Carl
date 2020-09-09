@@ -1,4 +1,5 @@
 const shell = require('linux-shell-command').shellCommand;
+let err=false;
 module.exports=async function(chan,staff) {	// Drive checking
 	try {
 		let fstb=shell("cat /etc/fstab");
@@ -20,6 +21,7 @@ module.exports=async function(chan,staff) {	// Drive checking
 							if (!m.includes(drv)) msng.push(drv);
 						});
 						if (msng.length>0) {
+							err=true;
 							msgs=[
 								msng[0]+" has been reported missing"+(msng.length>1?", it was last seen in the company of "+(msng.length>2?msng.slice(1,-1).join(", ")+", and ":"")+msng.slice(-1)[0]:"")+".",
 								"be on the lookout for "+msng[0]+(msng.length>1?", last seen in the company of "+(msng.length>2?msng.slice(1,-1).join(", ")+", and ":"")+msng.slice(-1)[0]:"")+".",
@@ -29,6 +31,10 @@ module.exports=async function(chan,staff) {	// Drive checking
 							let say=msgs[Math.floor(Math.random()*msgs.length)];
 							chan.send(say?staff+", "+say:"burps.");
 						}
+						else {
+							err=false;
+						}
+						
 					}
 				}).catch(e => {
 					console.error(e);
@@ -39,7 +45,7 @@ module.exports=async function(chan,staff) {	// Drive checking
 		});
 	}
 	catch (error) {
-		console.error('There was an issue with drive checking.');
+		console.log('There was an issue with drive checking.');
 		console.error(error);
 	}
 }
