@@ -80,33 +80,29 @@ client.on('message', msg => {
 		require("./commands/asyouwish.js")(msg);
         const args = msg.content.slice(prefix.length).split(/ +/);
         const commandName = args.shift().toLowerCase();
-        if (msg.content.startsWith(prefix+commandName)) {
+        if (msg.content.startsWith(prefix+commandName) && client.commands.has(commandName) {
             const command=client.commands.get(commandName);
-            try {
-                command.execute(msg, args);
-                if (command.args && !args.length) {
-                    let reply = `You didn't provide any arguments, ${message.author}!`;
-                    if (command.usage) {
-                        reply += `\nThe proper usage would be: \`${prefix}${command.name} ${command.usage}\``;
-                    }
-                    return message.channel.send(reply);
-                }
-            }
-            catch (error) {
-                console.error(error);
-                console.log('there was an error trying to execute '+command+'!');
-            }
+			if (command.args && !args.length) {
+				let reply = `You didn't provide any arguments, ${message.author}!`;
+				if (command.usage) {
+					reply += `\nThe proper usage would be: \`${prefix}${command.name} ${command.usage}\``;
+				}
+				return message.channel.send(reply);
+			}
+			else command.execute(msg, args);
         }
 		
         //Plain text social responses
         else {
 			client.socials.forEach(social => {if (social.trigger(msg)) social.execute(msg);});
 
-            // help text
-            if (msg.content.match(/^!help/i)||msg.content.match(/^help.*carl.*/i)) {
-                msg.channel.send(msg.author+', here\'s a quick help list!\n\n!ping ["plex"/"calibre"/"ftp"/"all"/""] - Asks me the status of various services.\n!tips - Asks me for a random tip.\n!help - Tells me to display this message.\n\nIf you need assistance or have a suggestion for my service, let a member of our Casting staff know in '+HelpRef+'.');
-            }
+           
         }
+		
+		 // help text
+		if (msg.content.match(/^!help/i)||msg.content.match(/^help.*carl.*/i)) {
+			msg.channel.send(msg.author+', here\'s a quick help list!\n\n!ping ["plex"/"calibre"/"ftp"/"all"/""] - Asks me the status of various services.\n!tips - Asks me for a random tip.\n!help - Tells me to display this message.\n\nIf you need assistance or have a suggestion for my service, let a member of our Casting staff know in '+HelpRef+'.');
+		}
     }
 });
 
