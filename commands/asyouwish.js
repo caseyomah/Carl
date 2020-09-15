@@ -25,7 +25,7 @@ watchReacts=function(m,f,l,k,cc) {
         log[f]=t;
         let pings="<@"+m.author.id+"> ";
         if (m.reactions.has("☝️")) m.reactions.get("☝️").users.forEach(u=>pings+="<@"+u.id+"> ");
-        cc.send(pings+l[2]+" is "+(err?"fixed":"up")+".");
+        cc.send(`${pings}, ${f} ${l[2]} (${l[3]}) is `+(err?"fixed":"up")+".");
         CSV.writeArraySync(filepath+f+"."+ext,log[f]);
         c.stop();
     })
