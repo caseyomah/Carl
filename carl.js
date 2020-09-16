@@ -13,7 +13,7 @@
 // Set constants
 const findPlugins=function(client,command,plg) {
     let [prop,key]=plg;
-    if (Object.keys(command).includes("execute") && Object.keys(command).includes(key)) client[prop].set(key,command);
+    if (Object.keys(command).includes("execute") && Object.keys(command).includes(key)) client[prop].set(command[key],command);
 	else Object.keys(command).forEach((c) => {findPlugins(client,command[c],plg);});
 }
 
@@ -21,6 +21,7 @@ const fs=require('fs');
 const Discord=require('discord.js');
 const {prefix,token}=require('/home/plex/bots/authCarl.json');
 const client=new Discord.Client();
+// folder/type, key
 let plugins=[["commands","name"],["socials","trigger"]];
 plugins.forEach(plg=>{
     client[plg[0]]=new Discord.Collection();
@@ -71,7 +72,7 @@ client.on('ready', () => {
     // Wakeup message.
     var say=new Array("Sorry, I must have dozed off for a bit.","Please excuse me, the best scene just finished. I'm here now.","My apologies, I was a bit distracted.");
 	onconn.send(say[Math.floor(Math.random()*say.length)]);
-	client.setInterval(()=> require('./drvchk.js')(Ch.get(client,"help"),Role.ref("staff")),350000);
+	client.setInterval(()=> require('./drvchk.js')(Ch.get(client,"help"),Role.ref("staff")),3500);
 });
 
 // Reply to messages
@@ -94,7 +95,12 @@ client.on('message', msg => {
 		
         //Plain text social responses
         else {
-			client.socials.forEach(social => {if (social.trigger(msg)) social.execute(msg);});
+			let say;
+			client.socials.forEach(social => {if (social.trigger(msg)) say=social.execute(msg);});
+			if (say && say.length > 0) {
+				if (Array.isArray(say)) msg.channel.send(say[Math.floor(Math.random()*say.length)]);
+				else if (typeof say == "string") msg.channel.send(say);
+			}
         }
 		
 		 // help text

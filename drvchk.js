@@ -21,15 +21,17 @@ module.exports=async function(chan,staff) {	// Drive checking
 							if (!m.includes(drv)) msng.push(drv);
 						});
 						if (msng.length>0) {
-							err=true;
-							msgs=[
-								msng[0]+" has been reported missing"+(msng.length>1?", it was last seen in the company of "+(msng.length>2?msng.slice(1,-1).join(", ")+", and ":"")+msng.slice(-1)[0]:"")+".",
-								"be on the lookout for "+msng[0]+(msng.length>1?", last seen in the company of "+(msng.length>2?msng.slice(1,-1).join(", ")+", and ":"")+msng.slice(-1)[0]:"")+".",
-								"little Bopeep has lost her sheep named "+msng[0]+(msng.length>1?", "+(msng.length>2?msng.slice(1,-1).join(", ")+", and ":"")+msng.slice(-1)[0]:"")+", and doesn't know where to find them! Would you be a dear, and seek them out?",
-								"drive"+(msng.length>1?"s":"")+" "+msng[0]+(msng.length>1?", "+(msng.length>2?msng.slice(1,-1).join(", ")+", and ":"")+msng.slice(-1)[0]:"")+" "+(msng.length>1?"are":"is")+" on the lam... can you please find them?"
-							];
-							let say=msgs[Math.floor(Math.random()*msgs.length)];
-							chan.send(say?staff+", "+say:"burps.");
+							if(!err) {
+								err=true;
+								msgs=[
+									msng[0]+" has been reported missing"+(msng.length>1?", it was last seen in the company of "+(msng.length>2?msng.slice(1,-1).join(", ")+", and ":"")+msng.slice(-1)[0]:"")+".",
+									"be on the lookout for "+msng[0]+(msng.length>1?", last seen in the company of "+(msng.length>2?msng.slice(1,-1).join(", ")+", and ":"")+msng.slice(-1)[0]:"")+".",
+									"little Bopeep has lost her sheep named "+msng[0]+(msng.length>1?", "+(msng.length>2?msng.slice(1,-1).join(", ")+", and ":"")+msng.slice(-1)[0]:"")+", and doesn't know where to find them! Would you be a dear, and seek them out?",
+									"drive"+(msng.length>1?"s":"")+" "+msng[0]+(msng.length>1?", "+(msng.length>2?msng.slice(1,-1).join(", ")+", and ":"")+msng.slice(-1)[0]:"")+" "+(msng.length>1?"are":"is")+" on the lam... can you please find them?"
+								];
+								let say=msgs[Math.floor(Math.random()*msgs.length)];
+								chan.send(say?staff+", "+say:"burps.");
+							}
 						}
 						else {
 							err=false;
