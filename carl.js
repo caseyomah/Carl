@@ -72,7 +72,7 @@ client.on('ready', () => {
     // Wakeup message.
     var say=new Array("Sorry, I must have dozed off for a bit.","Please excuse me, the best scene just finished. I'm here now.","My apologies, I was a bit distracted.");
 	onconn.send(say[Math.floor(Math.random()*say.length)]);
-	client.setInterval(()=> require('./drvchk.js')(Ch.get(client,"help"),Role.ref("staff")),3500);
+	client.setInterval(()=> require('./drvchk.js')(Ch.get(client,"help"),Role.ref("staff")),350000);
 });
 
 // Reply to messages
@@ -95,8 +95,7 @@ client.on('message', msg => {
 		
         //Plain text social responses
         else {
-			let say;
-			client.socials.forEach(social => {if (social.trigger(msg)) say=social.execute(msg);});
+			client.socials.forEach(social => {if (social.trigger(msg)) let say=social.execute(msg);});
 			if (say && say.length > 0) {
 				if (Array.isArray(say)) msg.channel.send(say[Math.floor(Math.random()*say.length)]);
 				else if (typeof say == "string") msg.channel.send(say);
