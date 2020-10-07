@@ -44,13 +44,13 @@ module.exports=function(message) {
         console.log(type[info[2]]+" - "+info[3]+" ("+info[4]+") "+info[8]);
 
     */
-    const chatchan=message.client.guilds.get("581333387403329557").channels.get("581340136374009856");
-    const chan=message.client.guilds.get("581333387403329557").channels.get((err?"581603029263056921":"581339870790680586"));
+    const chatchan=message.client.guilds.cache.get("581333387403329557").channels.cache.get("581340136374009856");
+    const chan=message.client.guilds.cache.get("581333387403329557").channels.cache.get((err?"581603029263056921":"581339870790680586"));
     const mode=err?"report":"request";
     let deleteMsg=true,type=undefined,dmText="I'm sorry, this channel is reserved for "+mode+"s, please take conversations to "+chatchan+".";
     if (!reacts) {
         reacts=true;
-        Object.keys(log).forEach(f=>log[f].forEach((l,k)=>chan.fetchMessage(l[1]).then(m=>watchReacts(m,f,l,k,chatchan)).catch(console.error)));
+        Object.keys(log).forEach(f=>log[f].forEach((l,k)=>chan.messages.fetch(l[1]).then(m=>watchReacts(m,f,l,k,chatchan)).catch(console.error)));
     }
     if (message.channel==chan) {
         info=message.content.match(err?/^(🛑)?\s*(\S+)\s+\*\*(.*)\*\*\s+\((.*)\)\s*-?\s*S?(\d{2})?E?(\d{2})?(\s+\*(.*)\*)?$/:/^(🛑)?\s*(\S+)\s+\*\*(.*)\*\*\s+\((.*)\)(\s+on\s+(.+))?(\s+\*(.*)\*)?$/);
