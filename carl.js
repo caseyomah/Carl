@@ -111,7 +111,7 @@ client.on('message', msg => {
 
 // Member greeting
 client.on('guildMemberAdd', member => {
-    member.addRole("701907216479027281");
+    member.roles.add("701907216479027281");
     newconn.send(member+", welcome! Please read everything in "+RulesRef+", "+PlexRef+", and "+CalibreRef+", then come back here and tell me, \"**I understand**,\" to continue.");
 });
 client.login(token);
