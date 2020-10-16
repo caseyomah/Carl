@@ -5,7 +5,7 @@ module.exports={
 				return !!msg.content.match(/^h(e(llo)?|i|y)a?.* carl.*/i);
 			},
 			execute(msg) {
-				return "Hello, "+msg.author+", is there something I can help you with?";
+				return `Hello, ${msg.author}, is there something I can help you with?`;
 			}
 		},
 		1:{
@@ -15,7 +15,7 @@ module.exports={
 			execute(msg) {
 				return [
 					"Great to see you again.",
-					"Great to see you again, "+msg.author+"."
+			`Great to see you again, ${msg.author}.`
 				];
 			}
 		}
@@ -27,7 +27,7 @@ module.exports={
 		execute(msg) {
 			return [
 				"Hope to see you again soon.",
-				"Hope to see you again soon, "+msg.author+"."
+				`Hope to see you again soon, ${msg.author}.`
 			];
 		}
 	},

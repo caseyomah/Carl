@@ -35,8 +35,8 @@ const Recs = require("./commands/recs.js");
 
 // Define Functions
 function Mbr(mem,leadcap) {
-    console.error("Mbr in use.");
-    return mem||((leadcap?"F":"f")+"riend");
+    console.warn("Mbr in use.");
+    return `${mem}`||((leadcap?"F":"f")+"riend");
 }
 
 // acknowledge ready state
@@ -65,7 +65,7 @@ client.on('ready', () => {
     // Links to roles and channels.
     CastingRef=Role.ref("CaStInG");
     RulesRef=Ch.ref("rules");
-    CalibreRef=Ch.ref("calibre");
+    CalibreRef=Ch.ref("calibre");cmd
     PlexRef=Ch.ref("plex");
 	HelpRef=Ch.ref("help");
 
@@ -81,7 +81,7 @@ client.on('message', msg => {
 		require("./commands/asyouwish.js")(msg);
         const args = msg.content.slice(prefix.length).split(/ +/);
         const commandName = args.shift().toLowerCase();
-        if (msg.content.startsWith(prefix+commandName) && client.commands.has(commandName)) {
+        if (msg.content.startsWith(`${prefix}${commandName}`) && client.commands.has(commandName)) {
             const command=client.commands.get(commandName);
 			if (command.args && !args.length) {
 				let reply = `You didn't provide any arguments, ${message.author}!`;
@@ -95,16 +95,22 @@ client.on('message', msg => {
 		
         //Plain text social responses
         else {
-			client.socials.forEach(social => {if (social.trigger(msg)) say=social.execute(msg);});
-			if (typeof say != "undefined" && say && say.length > 0) {
-				if (Array.isArray(say)) msg.channel.send(say[Math.floor(Math.random()*say.length)]);
-				else if (typeof say == "string") msg.channel.send(say);
+			say=[];
+			client.socials.forEach(social => {if (social.trigger(msg)) say.push(social.execute(msg));});
+			say=say.flat();
+			if (say.length > 0) {
+				i="";
+				while (i="") {
+					let i=say[Math.floor(Math.random()*say.length)];
+				}
+				if (typeof say[i] == "string") msg.channel.send(say);
+				else console.error(`Nothing to say:\nindex ${i} of:\n${say}`);
 			}
         }
 		
 		 // help text
 		if (msg.content.match(/^!help/i)||msg.content.match(/^help.*carl.*/i)) {
-			msg.channel.send(msg.author+', here\'s a quick help list!\n\n!ping ["plex"/"calibre"/"ftp"/"all"/""] - Asks me the status of various services.\n!tips - Asks me for a random tip.\n!help - Tells me to display this message.\n\nIf you need assistance or have a suggestion for my service, let a member of our Casting staff know in '+HelpRef+'.');
+			msg.channel.send(`${msg.author}, here's a quick help list!\n\n!ping ["plex"/"calibre"/"ftp"/"all"/""] - Asks me the status of various services.\n!tips - Asks me for a random tip.\n!help - Tells me to display this message.\n\nIf you need assistance or have a suggestion for my service, let a member of our Casting staff know in ${HelpRef}.`);
 		}
     }
 });
@@ -112,6 +118,6 @@ client.on('message', msg => {
 // Member greeting
 client.on('guildMemberAdd', member => {
     member.roles.add("701907216479027281");
-    newconn.send(member+", welcome! Please read everything in "+RulesRef+", "+PlexRef+", and "+CalibreRef+", then come back here and tell me, \"**I understand**,\" to continue.");
+    newconn.send(`${member}, welcome! Please read everything in ${RulesRef}, ${PlexRef}, and ${CalibreRef}, then come back here and tell me, "**I understand***" to continue.`);
 });
 client.login(token);
