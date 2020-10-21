@@ -26,7 +26,7 @@ let plugins=[["commands","name"],["socials","trigger"]];
 plugins.forEach(plg=>{
     client[plg[0]]=new Discord.Collection();
     let tmp=fs.readdirSync("./"+plg[0]).filter(file => file.endsWith(".js"));
-    for (const file of tmp) findPlugins(client,require(`./${plg[0]}/`+file),plg);
+    for (const file of tmp) findPlugins(client,require(`./${plg[0]}/${file}`),plg);
 });
 const Ch = require('./commands/ch.js');
 const Em = require('./commands/em.js');
@@ -65,7 +65,7 @@ client.on('ready', () => {
     // Links to roles and channels.
     CastingRef=Role.ref("CaStInG");
     RulesRef=Ch.ref("rules");
-    CalibreRef=Ch.ref("calibre");cmd
+    CalibreRef=Ch.ref("calibre");
     PlexRef=Ch.ref("plex");
 	HelpRef=Ch.ref("help");
 

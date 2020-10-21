@@ -70,7 +70,7 @@ module.exports=function(message) {
                     else if (!info[6]) dmText=`I'm sorry, what channel is that ${type[1]} on again?`;
                     else {
                         deleteMsg=false;
-                        dmText=`Thank you for ${mode}ing the ${(err?"":"\`"+date[2].toLowerCase()+"\` ")}${type[1]}` \`${info[3]}\` from ${(err?"episode ":"")}\`${info[6]}\` ${(err?"of season \`"+info[5]+"\` ":"")}premiering in \`${(err?info[4]:date[1])}\`.${(info[8]?" The following notes have been included: `"+info[8]+"\`.":"")}`;
+                        dmText=`Thank you for ${mode}ing the ${(!err?"\`"+date[2].toLowerCase()+"\` ":"")}${type[1]}\` \`${info[3]}\` from ${(err?"episode ":"")}\`${info[6]}\` ${(err?"of season \`"+info[5]+"\` ":"")}premiering in \`${(err?info[4]:date[1])}\`.${(info[8]?" The following notes have been included: \`"+info[8]+"\`.":"")}`;
                         log[type[0]].push([message.author.id,message.id,info[3],(err?info[4]:date[1]),(err?info[5]:date[2]),info[6],(err?info[8]:(info[8]?info[8]:""))]);
                     }
                     break;
@@ -101,7 +101,7 @@ module.exports=function(message) {
                     else if (!info[8]&&err) dmText=`I'm sorry, what was wrong with this ${type[1]}?`;
                     else {
                         deleteMsg=false;
-                        dmText=`Thank you for ${mode}ing the ${type[1]} \`${tags[1]}\` as performed by \`${tags[0]}\` in `${info[4]}`.${(info[8]?" The following notes have been included: \`"+info[8]+"\`.":"")}`;
+                        dmText=`Thank you for ${mode}ing the ${type[1]} \`${tags[1]}\` as performed by \`${tags[0]}\` in \`${info[4]}\`.${(info[8]?" The following notes have been included: \`"+info[8]+"\`.":"")}`;
                         log[type[0]].push([message.author.id,message.id,tags[1],tags[2],info[4],(info[8]?info[8]:"")]);
                     }
                     break;
@@ -133,7 +133,7 @@ module.exports=function(message) {
                     else if (!info[8]&&err) dmText=`I'm sorry, what was wrong with this ${type[1]}?`;
                     else {
                         deleteMsg=false;
-                        dmText=`Thank you for ${mode}ing the ${type[1]} \`${tags[2]}\` written by \`${tags[0]}\` in \`${info[4]}\`${tags[1].match(/none/i):" part of the \`"+tags[1]+"\` series.")}${(info[8]?" The following notes have been included: `"+info[8]+"`.":"")}`;
+                        dmText=`Thank you for ${mode}ing the ${type[1]} \`${tags[2]}\` written by \`${tags[0]}\` in \`${info[4]}\`${(!tags[1].match(/none/i)?" part of the \`"+tags[1]+"\` series.":"")}${(info[8]?" The following notes have been included: \`"+info[8]+"\`.":"")}`;
                         log[type[0]].push([message.author.id,message.id,tags[1],tags[2],tags[3],info[4],(info[8]?info[8]:"")]);
                     }
                     break;
