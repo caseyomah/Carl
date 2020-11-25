@@ -2,35 +2,43 @@
     Future Plans:
         Ch and Role search by name
         Fix function Em (Figure out emoji lookup)
-        Split Recommendations (Rec) out from Tips
-		Make separate docs for: TV, movies, books, misc
-		Call with `!rec TV` or `!rec`
-		If no sub specified, randomly chose one of the available docs
-		Then once in doc randomly choose one line and return it.
-		Create an interface for adding new entries to these from Discord (Crypto should be able to help)
 */
 
 // Set constants
 const findPlugins=function(client,command,plg) {
     let [prop,key]=plg;
-    if (Object.keys(command).includes("execute") && Object.keys(command).includes(key)) client[prop].set(command[key],command);
-	else Object.keys(command).forEach((c) => {findPlugins(client,command[c],plg);});
+    (plg.length>2?true:("execute" in command) && (key in command))?client[prop].set(command[key],command):Object.keys(command).forEach((c) => {findPlugins(client,command[c],plg);});
+}
+
+const runSocials=function(msg) {
+    say=[];
+    client.socials.forEach(social => {if (social.trigger(msg)) say.push(social.execute(msg));});
+    say=say.flat();
+    if (typeof say=="array"&&say.length > 0) {
+        i=-1;
+		do {
+            let i=Math.floor(Math.random()*say.length);
+        }
+        while (i==-1||say[i]=="");
+        if (typeof say[i] == "string") msg.channel.send(say[i]);
+        else console.error(`Nothing to say:\nindex ${i} of:\n${say}`);
+    }
 }
 
 const fs=require('fs');
 const Discord=require('discord.js');
 const {prefix,token}=require('/home/plex/bots/authCarl.json');
-const client=new Discord.Client();
+const client=new Discord.Client(Discord.Intents.ALL);
 // folder/type, key
-let plugins=[["commands","name"],["socials","trigger"]];
+let plugins=[["commands","name"],["socials","trigger"],["core","name",0]];
 plugins.forEach(plg=>{
     client[plg[0]]=new Discord.Collection();
     let tmp=fs.readdirSync("./"+plg[0]).filter(file => file.endsWith(".js"));
     for (const file of tmp) findPlugins(client,require(`./${plg[0]}/${file}`),plg);
 });
-const Ch = require('./commands/ch.js');
-const Em = require('./commands/em.js');
-const Role = require('./commands/role.js');
+const Ch = require('./core/ch.js');
+const Em = require('./core/em.js');
+const Role = require('./core/role.js');
 const Recs = require("./commands/recs.js");
 
 // Define Functions
@@ -42,8 +50,7 @@ function Mbr(mem,leadcap) {
 // acknowledge ready state
 client.on('ready', () => {
     // console.log('Logged in as ${client.user.tag)!');
-    
-    //define Ch and Role objects.
+	// define Ch and Role objects.
     Ch.set("bot","675864898617606184");
     Ch.set("help","583979972578770945");
     Ch.set("test","681380531493142533");
@@ -75,6 +82,12 @@ client.on('ready', () => {
 	client.setInterval(()=> require('./drvchk.js')(Ch.get(client,"help"),Role.ref("staff")),350000);
 });
 
+// Member greeting
+client.on('guildMemberAdd', (member) => {
+    newconn.send(`${member}, welcome! Please read everything in ${RulesRef}, ${PlexRef}, and ${CalibreRef}, then come back here and tell me, "**I understand**" to continue.`);
+    member.roles.add("701907216479027281");
+});
+
 // Reply to messages
 client.on('message', msg => {
     if (client.user.id !== msg.author.id) {
@@ -84,28 +97,18 @@ client.on('message', msg => {
         if (msg.content.startsWith(`${prefix}${commandName}`) && client.commands.has(commandName)) {
             const command=client.commands.get(commandName);
 			if (command.args && !args.length) {
-				let reply = `You didn't provide any arguments, ${message.author}!`;
+				let reply = `You didn't provide any arguments, ${msg.author}!`;
 				if (command.usage) {
 					reply += `\nThe proper usage would be: \`${prefix}${command.name} ${command.usage}\``;
 				}
-				return message.channel.send(reply);
+				return msg.channel.send(reply);
 			}
 			else command.execute(msg, args);
         }
 		
-        //Plain text social responses
+        // Plain text social responses
         else {
-			say=[];
-			client.socials.forEach(social => {if (social.trigger(msg)) say.push(social.execute(msg));});
-			say=say.flat();
-			if (say.length > 0) {
-				i="";
-				while (i="") {
-					let i=say[Math.floor(Math.random()*say.length)];
-				}
-				if (typeof say[i] == "string") msg.channel.send(say);
-				else console.error(`Nothing to say:\nindex ${i} of:\n${say}`);
-			}
+            runSocials(msg);
         }
 		
 		 // help text
@@ -115,9 +118,4 @@ client.on('message', msg => {
     }
 });
 
-// Member greeting
-client.on('guildMemberAdd', member => {
-    member.roles.add("701907216479027281");
-    newconn.send(`${member}, welcome! Please read everything in ${RulesRef}, ${PlexRef}, and ${CalibreRef}, then come back here and tell me, "**I understand***" to continue.`);
-});
 client.login(token);

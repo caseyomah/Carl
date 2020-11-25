@@ -2,3 +2,5 @@ node_modules
 .directory
 test.js
 data/
+screenlog.*
+test.html

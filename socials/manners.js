@@ -2,7 +2,7 @@ module.exports={
 	hi:{
 		0:{
 			trigger(msg) {
-				return !!msg.content.match(/^h(e(llo)?|i|y)a?.* carl.*/i);
+				return !!(msg.content.match(/^h(e(llo)?|i|y)a?.* carl.*/i));
 			},
 			execute(msg) {
 				return `Hello, ${msg.author}, is there something I can help you with?`;
@@ -10,7 +10,7 @@ module.exports={
 		},
 		1:{
 			trigger(msg) {
-				return !!msg.content.match(/morning.* carl.*/i);
+				return !!(msg.content.match(/morning.* carl.*/i));
 			},
 			execute(msg) {
 				return [
@@ -22,7 +22,7 @@ module.exports={
 	},
 	bye:{
 		trigger(msg) {
-			return !!msg.content.match(/^(good ?)?(bye|n(ight|ite)).* carl.*/i);
+			return !!(msg.content.match(/^(good ?)?(bye|n(ight|ite)).* carl.*/i));
 		},
 		execute(msg) {
 			return [
@@ -33,7 +33,7 @@ module.exports={
 	},
 	thank:{
 		trigger(msg) {
-            return !!msg.content.match(/thank(s.*| ?you.*) carl.*/i);
+            return !!(msg.content.match(/thank(s.*| ?you.*) carl.*/i));
 		},
 		execute(msg) {
 			return [

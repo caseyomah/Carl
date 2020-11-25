@@ -1,7 +1,7 @@
 module.exports={
 	newuser:{
 		trigger(msg) {
-            return !!(msg.content.match(/i understand/i) && msg.channel == newconn)
+            return !!(msg.content.match(/i understand/i) && msg.channel == newconn&&msg.member.roles.cache.has("701907216479027281"))
 		},
 		execute(msg) {
 			newconn.send(`Done? Great! Sorry to put you through that mess, but it was pretty important. Now, I'll slip a note to our ${CastingRef} department. They should be by soon to answer any questions and let you in.`);

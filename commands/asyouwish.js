@@ -3,7 +3,7 @@ const CSV=require("./csv.js");
 let reacts=false;
 /*
     Future plans:
-        Message in #words-words-words when request/report is filled/fixed tagging original author plus any who have :point_up:ed that message.
+		Split into noproblemo and asyouwish seperate files.
         Possibly make types object be able to handle the idiosyncrasies of different formats and scrap the switch/case block.
 */
 
@@ -18,18 +18,24 @@ const types={"📺":["tv","show"],"🎞️":["movie","movie"],"🎵":["music","s
 var log={};
 Object.values(types).forEach(key=>log[key[0]]=CSV.readArraySync(`${filepath}${key[0]}.${ext}`));
 watchReacts=function(m,f,l,k,cc) {
-    const filter=(reaction,user)=>reaction.emoji.name==='✨'&&(m.guild.members.get(user.id).roles.has("581334517151825920")||m.guild.members.get(user.id).roles.has("581538686265589772"));
-    m.createReactionCollector(filter).on('collect', (r,c) => {
+	console.log(m.contents);
+    const filter=(reaction,user)=>{
+        let r=m.guild.members.cache.get(user.id).roles.cache;
+        return !!(reaction.emoji.name==='✨'&&(r.has("581334517151825920")||r.has("581538686265589772")))
+    };
+    m.createReactionCollector(filter,{max:1}).on('collect', (r,c) => {
         t=[];
         log[f].forEach((v,i)=>{if (i!==k) t.push(v)});
         log[f]=t;
-        let pings=`${m.author} `;
-        if (m.reactions.has("☝️")) m.reactions.get("☝️").users.forEach(u=>pings+=`${u} `);
-        cc.send(`${pings}, ${f} ${l[2]} (${l[3]}) is ${(err?"fixed":"up")}.`);
+		let notifies={};
+		notifies[m.author.id]=1
+		if (r.message.reactions.cache.has("☝️")) r.message.reactions.cache.get("☝️").users.cache.keyArray().forEach(u=>notifies[u]=1);
+        let pings=`<@${Object.keys(notifies).join("> <@")}> `;
+        cc.send(`${pings}, ${f} ${l[2]} (${(f=="music"?l[4]:l[3])}) is ${(err?"fixed":"up")}.`);
         CSV.writeArraySync(`${filepath}${f}.${ext}`,log[f]);
-        c.stop();
     })
 }
+
 module.exports=function(message) {
     /*
         1=Error toggle
@@ -53,7 +59,7 @@ module.exports=function(message) {
         Object.keys(log).forEach(f=>log[f].forEach((l,k)=>chan.messages.fetch(l[1]).then(m=>watchReacts(m,f,l,k,chatchan)).catch(console.error)));
     }
     if (message.channel==chan) {
-        info=message.content.match(err?/^(🛑)?\s*(\S+)\s+\*\*(.*)\*\*\s+\((.*)\)\s*-?\s*S?(\d{2})?E?(\d{2})?(\s+\*(.*)\*)?$/:/^(🛑)?\s*(\S+)\s+\*\*(.*)\*\*\s+\((.*)\)(\s+on\s+(.+))?(\s+\*(.*)\*)?$/);
+        let info=message.content.match(err?/^(🛑)?\s*(\S+)\s+\*\*(.*)\*\*\s+\((.*)\)\s*-?\s*S?(\d{2})?E?(\d{2})?(\s+\*(.*)\*)?$/:/^(🛑)?\s*(\S+)\s+\*\*(.*)\*\*\s+\((.*)\)(\s+on\s+(.+))?(\s+\*(.*)\*)?$/);
         if (info && info.length==9&&info[2]&&!err==!info[1]) {
             switch(info[2]) {
                 case "📺":
@@ -70,7 +76,7 @@ module.exports=function(message) {
                     else if (!info[6]) dmText=`I'm sorry, what channel is that ${type[1]} on again?`;
                     else {
                         deleteMsg=false;
-                        dmText=`Thank you for ${mode}ing the ${(!err?"\`"+date[2].toLowerCase()+"\` ":"")}${type[1]}\` \`${info[3]}\` from ${(err?"episode ":"")}\`${info[6]}\` ${(err?"of season \`"+info[5]+"\` ":"")}premiering in \`${(err?info[4]:date[1])}\`.${(info[8]?" The following notes have been included: \`"+info[8]+"\`.":"")}`;
+                        dmText=`Thank you for ${mode}ing the ${(err?"":`\`${date[2].toLowerCase()}\` `)}${type[1]} \`${info[3]}\` from ${(err?"episode ":"")}\`${info[6]}\` ${(err?`of season \`${info[5]}\` `:"")}premiering in \`${(err?info[4]:date[1])}\`.${(info[8]?` The following notes have been included: \`${info[8]}\`.`:"")}`;
                         log[type[0]].push([message.author.id,message.id,info[3],(err?info[4]:date[1]),(err?info[5]:date[2]),info[6],(err?info[8]:(info[8]?info[8]:""))]);
                     }
                     break;
@@ -176,7 +182,7 @@ module.exports=function(message) {
         if (dmText) message.author.send(dmText).catch();
         if (deleteMsg) {
             message.author.send(`Your message was removed, the original message content follows:\n\`\`\`${message.content}\`\`\``);
-            message.delete(1).catch();
+            message.delete({timeout:0,reason:"Non-conformant"}).catch();
         }
         else {
             CSV.writeArraySync(`${filepath}${type[0]}.${ext}`,log[type[0]]);
