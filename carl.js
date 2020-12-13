@@ -91,7 +91,7 @@ client.on('guildMemberAdd', (member) => {
 // Reply to messages
 client.on('message', msg => {
     if (client.user.id !== msg.author.id) {
-		require("./commands/asyouwish.js")(msg);
+		require("./asyouwish.js")(msg);
         const args = msg.content.slice(prefix.length).split(/ +/);
         const commandName = args.shift().toLowerCase();
         if (msg.content.startsWith(`${prefix}${commandName}`) && client.commands.has(commandName)) {
