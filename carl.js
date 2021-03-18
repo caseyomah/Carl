@@ -5,6 +5,7 @@
 */
 
 // Set constants
+const typing=require("./typing.js");
 const findPlugins=function(client,command,plg) {
     let [prop,key]=plg;
     (plg.length>2?true:("execute" in command) && (key in command))?client[prop].set(command[key],command):Object.keys(command).forEach((c) => {findPlugins(client,command[c],plg);});
@@ -13,15 +14,14 @@ const findPlugins=function(client,command,plg) {
 const runSocials=function(msg) {
     say=[];
     client.socials.forEach(social => {if (social.trigger(msg)) say.push(social.execute(msg));});
-    say=say.flat();
-    if (typeof say=="array"&&say.length > 0) {
-        i=-1;
-		do {
-            let i=Math.floor(Math.random()*say.length);
+    if (say.length > 0) {
+        if (Array.isArray(say)) {
+            say=say.flat();
+            i=Math.floor(Math.random()*say.length);
+            if (typeof say[i] == "string") typing(say[i],msg.channel);
+            else console.error(`Nothing to say:\nindex ${i} of:\n${say}`);
         }
-        while (i==-1||say[i]=="");
-        if (typeof say[i] == "string") msg.channel.send(say[i]);
-        else console.error(`Nothing to say:\nindex ${i} of:\n${say}`);
+        else if (typeof say == "string") typing(say,msg.channel);
     }
 }
 
@@ -78,13 +78,13 @@ client.on('ready', () => {
 
     // Wakeup message.
     var say=new Array("Sorry, I must have dozed off for a bit.","Please excuse me, the best scene just finished. I'm here now.","My apologies, I was a bit distracted.");
-	onconn.send(say[Math.floor(Math.random()*say.length)]);
+	typing(say[Math.floor(Math.random()*say.length)],onconn);
 	client.setInterval(()=> require('./drvchk.js')(Ch.get(client,"help"),Role.ref("staff")),350000);
 });
 
 // Member greeting
 client.on('guildMemberAdd', (member) => {
-    newconn.send(`${member}, welcome! Please read everything in ${RulesRef}, ${PlexRef}, and ${CalibreRef}, then come back here and tell me, "**I understand**" to continue.`);
+    typing(`${member}, welcome! Please read everything in ${RulesRef}, ${PlexRef}, and ${CalibreRef}, then come back here and tell me, "**I understand**" to continue.`,newconn);
     member.roles.add("701907216479027281");
 });
 
@@ -101,7 +101,7 @@ client.on('message', msg => {
 				if (command.usage) {
 					reply += `\nThe proper usage would be: \`${prefix}${command.name} ${command.usage}\``;
 				}
-				return msg.channel.send(reply);
+				return typing(reply,msg.channel);
 			}
 			else command.execute(msg, args);
         }
@@ -113,7 +113,7 @@ client.on('message', msg => {
 		
 		 // help text
 		if (msg.content.match(/^!help/i)||msg.content.match(/^help.*carl.*/i)) {
-			msg.channel.send(`${msg.author}, here's a quick help list!\n\n!ping ["plex"/"calibre"/"ftp"/"all"/""] - Asks me the status of various services.\n!tips - Asks me for a random tip.\n!help - Tells me to display this message.\n\nIf you need assistance or have a suggestion for my service, let a member of our Casting staff know in ${HelpRef}.`);
+			typing(`${msg.author}, here's a quick help list!\n\n!ping ["plex"/"calibre"/"ftp"/"all"/""] - Asks me the status of various services.\n!tips - Asks me for a random tip.\n!help - Tells me to display this message.\n\nIf you need assistance or have a suggestion for my service, let a member of our Casting staff know in ${HelpRef}.`,msg.channel);
 		}
     }
 });

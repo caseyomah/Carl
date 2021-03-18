@@ -179,6 +179,7 @@ module.exports=function(message) {
         if (deleteMsg) {
 			let dest=[message.author];
 			if (message.author.id != "231506627654582272") dest.push(message.channel.members.get("231506627654582272").user);
+            console.log(dest[0].dmChannel);
 			dest.forEach(d=>{d.send(`${dest[0]} ${dmText}\nYour message was removed, the original message content follows:\n\`\`\`${message.content}\`\`\``);});
             message.delete({timeout:0,reason:"Non-conformant"}).catch(e=>console.log(e));
         }

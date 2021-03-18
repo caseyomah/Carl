@@ -12,5 +12,21 @@ module.exports={
 				"Was that Star Trek or Star Wars?"
 			];
 		}
+	},
+	cont1:{
+		trigger(msg) {
+            return !!(msg.content.toLowerCase()=="what's her name?");
+		},
+		execute(msg) {
+			var say=[
+				"I don't want to talk about it.",
+				"I'm sure I don't know what you are implying.",
+				"Her? Who?",
+				"Don't you wish you knew?",
+				"I don't kiss and tell."
+			];
+            return say;
+		}
 	}
+	
 }
