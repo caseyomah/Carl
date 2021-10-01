@@ -1,9 +1,8 @@
 const shell = require('linux-shell-command').shellCommand;
 let err=[];
 parseShell=(s) => {
-	let t={};
-	s.stdout.match(/\/media\/plex\/Plex-([^\/]+?)\s/g).map(a=>{return a.slice(17,-1);}).forEach(a=>{t[a]=true;});
-	return Object.keys(t);
+    s=s.split(/[\r\n]+/).filter(a=>{b=a.match(/\s\/media\/plex\/Plex([^\/]+?)\s/)?true:false;console.log(b,a);return b;}).map(a=>{let b=a.split(/\s+/)[1].substring(16);return b.substring(0,1)=="-"?b.substring(1):b;});
+    return s;
 }
 module.exports=async function(chan,staff) {	// Drive checking
 	if (chan&&staff) {
@@ -12,12 +11,13 @@ module.exports=async function(chan,staff) {	// Drive checking
 			fstb.execute()
 			.then(success=> {
 				if (success === true && fstb.stdout != "") {
-					let f=parseShell(fstb);
+      //              console.log(fstb.stdout);
+					let f=parseShell(fstb.stdout);
 					let mtb=shell("cat /etc/mtab");
 					mtb.execute()
 					.then(success => {
 						if (success === true && mtb.stdout != "") {
-							let m=parseShell(mtb);
+							let m=parseShell(mtb.stdout);
 							let msng=[];
 							f.forEach(drv=>{
 								if (!m.includes(drv)) msng.push(drv);

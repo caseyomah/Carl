@@ -4,7 +4,7 @@ module.exports={
 		return !!(msg.content.toLowerCase()=="sorry, i was doing some uhh... nerdy stuff."&&Math.floor(Math.random() * 4)==0);
 		},
 		execute(msg) {
-			var say=[
+			return [
 				"Oh my!",
 				"I'm sure I don't want to know.",
 				"You don't say...",
@@ -18,14 +18,13 @@ module.exports={
             return !!(msg.content.toLowerCase()=="what's her name?");
 		},
 		execute(msg) {
-			var say=[
+			return [
 				"I don't want to talk about it.",
 				"I'm sure I don't know what you are implying.",
 				"Her? Who?",
 				"Don't you wish you knew?",
 				"I don't kiss and tell."
 			];
-            return say;
 		}
 	}
 	

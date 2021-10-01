@@ -1,7 +1,5 @@
 /*
     Future Plans:
-        Ch and Role search by name
-        Fix function Em (Figure out emoji lookup)
 */
 
 // Set constants
@@ -26,9 +24,9 @@ const runSocials=function(msg) {
 }
 
 const fs=require('fs');
-const Discord=require('discord.js');
+global.Discord=require('discord.js');
 const {prefix,token}=require('/home/plex/bots/authCarl.json');
-const client=new Discord.Client(Discord.Intents.ALL);
+global.client=new Discord.Client(Discord.Intents.ALL);
 // folder/type, key
 let plugins=[["commands","name"],["socials","trigger"],["core","name",0]];
 plugins.forEach(plg=>{
@@ -62,23 +60,23 @@ client.on('ready', () => {
 	Role.set("staff","676660602688765962");
 
     // define frequently used channels.
-    onconn = Ch.get(client,"bot");
-    offconn = Ch.get(client,"test");
-    newconn = Ch.get(client,"welcome");
+    global.onconn = Ch.get(client,"bot");
+    global.offconn = Ch.get(client,"test");
+    global.newconn = Ch.get(client,"welcome");
 
     // uncomment below to set client to send to testing channel. (Ushers/Producer only)
     // onconn=offconn;
 
     // Links to roles and channels.
-    CastingRef=Role.ref("CaStInG");
-    RulesRef=Ch.ref("rules");
-    CalibreRef=Ch.ref("calibre");
-    PlexRef=Ch.ref("plex");
-	HelpRef=Ch.ref("help");
+    global.CastingRef=Role.ref("CaStInG");
+    global.RulesRef=Ch.ref("rules");
+    global.CalibreRef=Ch.ref("calibre");
+    global.PlexRef=Ch.ref("plex");
+	global.HelpRef=Ch.ref("help");
 
     // Wakeup message.
     var say=new Array("Sorry, I must have dozed off for a bit.","Please excuse me, the best scene just finished. I'm here now.","My apologies, I was a bit distracted.");
-	typing(say[Math.floor(Math.random()*say.length)],onconn);
+	//typing(say[Math.floor(Math.random()*say.length)],onconn);
 	client.setInterval(()=> require('./drvchk.js')(Ch.get(client,"help"),Role.ref("staff")),350000);
 });
 
