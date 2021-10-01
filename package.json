@@ -14,7 +14,8 @@
     "cron": "^1.8.2",
     "discord.js": "^12.3.1",
     "fs": "0.0.1-security",
-    "linux-shell-command": "0.0.6"
+    "linux-shell-command": "0.0.6",
+    "ws": "^8.2.2"
   },
   "author": "caseyomah & jasoncollege24 & vaesse"
 }
