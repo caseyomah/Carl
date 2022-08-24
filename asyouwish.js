@@ -14,7 +14,7 @@ const ext="txt"; // Extension to use for data files
 
 // types supported, possible future expansion will allow for distinctions here so as to remove the switch statement completely
 //format "emoji":["file","text"]
-const types={"📺":["tv","show"],"🎞️":["movie","movie"],"🎵":["music","song"],"📖":["audiobook","audiobook"],"📖":["book","book"],"🎲":["rpg","role-playing game"],"💥":["comic","comic book"]};
+const types={"📺":["tv","show"],"🎞️":["movie","movie"],"🎵":["music","song"],"📖":["audiobook","audiobook"],"📚":["book","book"],"🎲":["rpg","role-playing game"],"💥":["comic","comic book"]};
 var log={};
 Object.values(types).forEach(key=>log[key[0]]=CSV.readArraySync(`${filepath}${key[0]}.${ext}`));
 watchReacts=function(m,f,l,k,cc) {
@@ -176,6 +176,7 @@ module.exports=function(message) {
                     dmText=`I'm sorry, it appears that you have used the wrong emoji at the start of this ${mode}. Please try again.`
              }
         }
+        if (dmText) message.author.send(dmText).catch();
         if (deleteMsg) {
 			let dest=[message.author];
 			if (message.author.id != "231506627654582272") dest.push(message.channel.members.get("231506627654582272").user);
@@ -183,8 +184,8 @@ module.exports=function(message) {
 			dest.forEach(d=>{d.send(`${dest[0]} ${dmText}\nYour message was removed, the original message content follows:\n\`\`\`${message.content}\`\`\``);});
             message.delete({timeout:0,reason:"Non-conformant"}).catch(e=>console.log(e));
         }
-        else if (dmText) message.author.send(dmText).catch();
         else {
+			console.log(log);
             CSV.writeArraySync(`${filepath}${type[0]}.${ext}`,log[type[0]]);
             watchReacts(message,type[0],log[type[0]][(log[type[0]].length-1)],(log[type[0]].length-1),chatchan);
         }

@@ -76,7 +76,7 @@ client.on('ready', () => {
 
     // Wakeup message.
     var say=new Array("Sorry, I must have dozed off for a bit.","Please excuse me, the best scene just finished. I'm here now.","My apologies, I was a bit distracted.");
-	//typing(say[Math.floor(Math.random()*say.length)],onconn);
+	typing(say[Math.floor(Math.random()*say.length)],onconn);
 	client.setInterval(()=> require('./drvchk.js')(Ch.get(client,"help"),Role.ref("staff")),350000);
 });
 

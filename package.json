@@ -15,6 +15,7 @@
     "discord.js": "^12.3.1",
     "fs": "0.0.1-security",
     "linux-shell-command": "0.0.6",
+    "plex-api": "^5.3.2",
     "ws": "^8.2.2"
   },
   "author": "caseyomah & jasoncollege24 & vaesse"
