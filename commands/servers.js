@@ -19,7 +19,7 @@ function Check(args,chan,pass) {
                     else if (sc.stdout.slice(0,6) != "active") {
                         if (Online[Server[s]] === true&&OffMsg[s]) {
                             var say=new Array(code[Server[s]].slice(0,1).toUpperCase()+code[Server[s]].slice(1)+" has just closed.");
-                            onconn.send(say[Math.floor(Math.random()*say.length)]);
+                            if (onconn) onconn.send(say[Math.floor(Math.random()*say.length)]);
                         }
                         Online[Server[s]]=false;
                     }
