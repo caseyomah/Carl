@@ -27,6 +27,10 @@ const fs=require('fs');
 global.Discord=require('discord.js');
 const {prefix,token}=require('/home/plex/bots/authCarl.json');
 global.client=new Discord.Client(Discord.Intents.ALL);
+// DNS Delay fix
+const dns=require("dns").promises;
+
+
 // folder/type, key
 let plugins=[["commands","name"],["socials","trigger"],["core","name",0]];
 plugins.forEach(plg=>{
@@ -45,8 +49,37 @@ function Mbr(mem,leadcap) {
     return `${mem}`||((leadcap?"F":"f")+"riend");
 }
 
+// DNS Delay fix. Wrapper to ensure Discord API is reachable before sending messages
+async function sendWhenConnected(client, say, onconn) {
+  const maxAttempts = 8;
+  const baseDelay = 500;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    if (!client.user || !onconn) {
+        console.error("Client or wake channel not ready. Aborting.")
+        return false;
+    }
+    try {
+        // Test API reachability by fetching the bot user
+        const msgSent = await typing(say[Math.floor(Math.random()*say.length)],onconn);
+        if (msgSent) {
+            return true; // Success, exit retry loop
+        }
+    }
+    catch (error) {
+        if (attempt === maxAttempts) {
+            console.error(error, `Unable to connect to Discord API after ${maxAttempts} attempts.`);
+            return false;
+        }
+    }
+    const delay = baseDelay * Math.pow(2, attempt - 1);
+    await new Promise(res => setTimeout(res, delay));
+  }
+  return false;
+}
+
 // acknowledge ready state
-client.on('ready', () => {
+client.on('ready', async () => {
     // console.log('Logged in as ${client.user.tag)!');
 	// define Ch and Role objects.
     Ch.set("bot","675864898617606184");
@@ -76,7 +109,13 @@ client.on('ready', () => {
 
     // Wakeup message.
     var say=new Array("Sorry, I must have dozed off for a bit.","Please excuse me, the best scene just finished. I'm here now.","My apologies, I was a bit distracted.");
-	typing(say[Math.floor(Math.random()*say.length)],onconn);
+    // DNS Delay fix
+    const carlConnected = await sendWhenConnected(client, say, onconn);
+    if (!carlConnected) {
+        return;
+    }
+
+	//typing(say[Math.floor(Math.random()*say.length)],onconn);
 	client.setInterval(()=> require('./drvchk.js')(Ch.get(client,"help"),Role.ref("staff")),350000);
 });
 
@@ -116,4 +155,39 @@ client.on('message', msg => {
     }
 });
 
-client.login(token);
+// DNS Delay fix
+async function waitForDNS(hostname, retries = 10, delayMs = 2000) {
+	for (let attempt = 1; attempt <= retries; attempt++) {
+		try {
+			await dns.lookup(hostname);
+			console.log(`✅ DNS resolved for ${hostname}`);
+			return true;
+		} catch (error) {
+			//console.log(`Attempt ${attempt}/${retries}: DNS not ready yet...`);
+			if (attempt === retries) {
+			console.error(error, `DNS resolution failed for ${hostname} after ${retries} retries.`);
+            return false;
+			} else {
+				await new Promise(res => setTimeout(res, delayMs));
+			}
+		}
+	}
+}
+
+// DNS Delay fix
+(async () => {
+    //console.log('Waiting for DNS to be ready...');
+    const dnsReady=await waitForDNS('discord.com');
+    if (!dnsReady) {
+        console.error("DNS fetch failed for Carl. Quitting.");
+        return;
+    }
+    //console.log('DNS OK — logging in...');
+    try {
+        await client.login(token);
+    } catch (error) {
+        console.error(error, "Carl's login failed.")
+    }
+})();
+
+//client.login(token);

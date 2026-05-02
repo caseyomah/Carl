@@ -15,7 +15,13 @@ module.exports=function(text, chan) {
 					setTimeout(()=>{
 						chan.stopTyping();
 						setTimeout(()=>{
-							chan.send(text).then(m=>msg(m));
+							// Potential crash fix
+							chan.send(text)
+								.then(m=>msg(m))
+								.catch(e => {
+									console.error(e, `Failed to send the following message:\n${text}`);
+									msg(false);
+								});
 						},proof);
 					},text.length*mpc);
 				},typingQueue.length?0:read);
